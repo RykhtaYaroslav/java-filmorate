@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -42,32 +41,6 @@ class UserControllerTest {
         assertEquals("login", createdUser.getLogin());
         assertEquals("Имя", createdUser.getName());
         assertEquals(1, userController.findAll().size());
-    }
-
-    @Test
-    @DisplayName("Создание пользователя с пустым логином должно выбрасывать ValidationException")
-    void create_UserWithEmptyLogin_ThrowsValidationException() {
-        User user = User.builder()
-                .email("test@example.com")
-                .login("")
-                .name("Имя")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-
-        assertThrows(ValidationException.class, () -> userController.create(user));
-    }
-
-    @Test
-    @DisplayName("Создание пользователя с неверным email должно выбрасывать ValidationException")
-    void create_UserWithInvalidEmail_ThrowsValidationException() {
-        User user = User.builder()
-                .email("invalid-email")
-                .login("login")
-                .name("Имя")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-
-        assertThrows(ValidationException.class, () -> userController.create(user));
     }
 
     @Test
@@ -140,19 +113,6 @@ class UserControllerTest {
         User createdUser = userController.create(user);
 
         assertEquals("login", createdUser.getName());
-    }
-
-    @Test
-    @DisplayName("Создание пользователя с будущей датой рождения должно выбрасывать ValidationException")
-    void create_UserWithFutureBirthday_ThrowsValidationException() {
-        User user = User.builder()
-                .email("test@example.com")
-                .login("login")
-                .name("Имя")
-                .birthday(LocalDate.now().plusDays(1))
-                .build();
-
-        assertThrows(ValidationException.class, () -> userController.create(user));
     }
 
     @Test

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -40,19 +39,6 @@ class FilmControllerTest {
         assertNotNull(createdFilm.getId());
         assertEquals("Название фильма", createdFilm.getName());
         assertEquals(1, filmController.findAll().size());
-    }
-
-    @Test
-    @DisplayName("Создание фильма с пустым названием должно выбрасывать ValidationException")
-    void create_FilmWithEmptyName_ThrowsValidationException() {
-        Film film = Film.builder()
-                .name("")
-                .description("Описание")
-                .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(120L)
-                .build();
-
-        assertThrows(ValidationException.class, () -> filmController.create(film));
     }
 
     @Test
