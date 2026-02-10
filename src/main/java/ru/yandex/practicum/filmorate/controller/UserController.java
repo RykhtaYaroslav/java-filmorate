@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Validator;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -63,11 +62,11 @@ public class UserController {
     }
 
     @TestOnly
-    public void clearData () {
+    public void clearData() {
         users.clear();
     }
 
-    private boolean isExist (User user) {
+    private boolean isExist(User user) {
         return users.values().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
     }
 

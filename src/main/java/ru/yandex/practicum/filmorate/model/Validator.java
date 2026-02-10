@@ -79,7 +79,6 @@ public class Validator {
         }
 
 
-
         // Логин не может быть пустым и содержать пробелы
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.error("Логин пользователя оказался пустым");
