@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.annotation.TestOnly;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Validator;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -28,6 +30,9 @@ public class UserController {
     @PostMapping
     public User create(@RequestBody User user) {
         Validator.validateUser(user);
+        if (isExist(user)) {
+            throw new ValidationException("Пользователь с таким email уже существует");
+        }
         user.setId(getNextId());
         users.put(user.getId(), user);
         return user;
@@ -60,6 +65,10 @@ public class UserController {
     @TestOnly
     public void clearData () {
         users.clear();
+    }
+
+    private boolean isExist (User user) {
+        return users.values().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
     }
 
 }

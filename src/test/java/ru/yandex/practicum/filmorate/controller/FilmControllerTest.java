@@ -33,7 +33,7 @@ class FilmControllerTest {
                 .name("Название фильма")
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         Film createdFilm = filmController.create(film);
@@ -50,7 +50,7 @@ class FilmControllerTest {
                 .name("")
                 .description("Описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(ValidationException.class, () -> filmController.create(film));
@@ -64,7 +64,7 @@ class FilmControllerTest {
                 .name("Старое название")
                 .description("Старое описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
         Film createdFilm = filmController.create(film);
         Long filmId = createdFilm.getId();
@@ -75,7 +75,7 @@ class FilmControllerTest {
                 .name("Новое название")
                 .description("Новое описание")
                 .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(150))
+                .duration(120L)
                 .build();
 
         Film result = filmController.update(updatedFilm);
@@ -83,7 +83,7 @@ class FilmControllerTest {
         assertEquals(filmId, result.getId());
         assertEquals("Новое название", result.getName());
         assertEquals("Новое описание", result.getDescription());
-        assertEquals(Duration.ofMinutes(150), result.getDuration());
+        assertEquals(120L, result.getDuration());
     }
 
     @Test
@@ -93,7 +93,7 @@ class FilmControllerTest {
                 .name("Название")
                 .description("Описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(ConditionsNotMetException.class, () -> filmController.update(film));
@@ -107,7 +107,7 @@ class FilmControllerTest {
                 .name("Название")
                 .description("Описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(NotFoundException.class, () -> filmController.update(film));
@@ -126,14 +126,14 @@ class FilmControllerTest {
                 .name("Фильм 1")
                 .description("Описание 1")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         Film film2 = Film.builder()
                 .name("Фильм 2")
                 .description("Описание 2")
                 .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(90))
+                .duration(120L)
                 .build();
 
         Film created1 = filmController.create(film1);

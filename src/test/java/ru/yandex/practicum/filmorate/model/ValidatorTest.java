@@ -26,7 +26,7 @@ class ValidatorTest {
                 .name("")
                 .description("Описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(ValidationException.class, () -> Validator.validateFilm(film));
@@ -41,7 +41,7 @@ class ValidatorTest {
                 .name("Название")
                 .description(longDescription)
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(ValidationException.class, () -> Validator.validateFilm(film));
@@ -54,7 +54,7 @@ class ValidatorTest {
                 .name("Название")
                 .description("Описание")
                 .releaseDate(LocalDate.of(1895, 12, 27))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(ValidationException.class, () -> Validator.validateFilm(film));
@@ -67,7 +67,7 @@ class ValidatorTest {
                 .name("Название")
                 .description("Описание")
                 .releaseDate(null)
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertThrows(ValidationException.class, () -> Validator.validateFilm(film));
@@ -87,7 +87,7 @@ class ValidatorTest {
                 .name("Название")
                 .description("Описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(-10))
+                .duration(-10L)
                 .build();
 
         assertThrows(ValidationException.class, () -> Validator.validateFilm(film1));
@@ -101,7 +101,7 @@ class ValidatorTest {
                 .name("Название")
                 .description("Короткое описание")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
+                .duration(120L)
                 .build();
 
         assertDoesNotThrow(() -> Validator.validateFilm(film));
@@ -114,7 +114,7 @@ class ValidatorTest {
                 .name("Название")
                 .description("Описание")
                 .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(Duration.ofMinutes(60))
+                .duration(60L)
                 .build();
 
         assertDoesNotThrow(() -> Validator.validateFilm(film));

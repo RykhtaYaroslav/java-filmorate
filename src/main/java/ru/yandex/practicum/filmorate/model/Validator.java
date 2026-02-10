@@ -4,9 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.time.LocalDate;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class Validator {
+
+    private static final String SIMPLE_EMAIL_REGEX = "^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$";
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(SIMPLE_EMAIL_REGEX);
 
     // Дата первого фильма в истории
     private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
@@ -42,7 +47,7 @@ public class Validator {
         }
 
         // Продолжительность фильма должна быть положительным числом
-        if (film.getDuration() == null || !film.getDuration().isPositive()) {
+        if (film.getDuration() == null || film.getDuration() < 0) {
             log.error("Некорректная продолжительность фильма: {}", film.getDuration());
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
@@ -67,6 +72,13 @@ public class Validator {
             log.error("Электронная почта пользователя не содержит символ @: {}", user.getEmail());
             throw new ValidationException("Электронная почта должна содержать символ @");
         }
+
+        if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
+            log.error("Некорректный формат электронной почты");
+            throw new ValidationException("Некорректный формат электронной почты");
+        }
+
+
 
         // Логин не может быть пустым и содержать пробелы
         if (user.getLogin() == null || user.getLogin().isBlank()) {
