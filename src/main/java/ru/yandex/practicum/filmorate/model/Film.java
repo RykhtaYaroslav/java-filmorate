@@ -18,7 +18,7 @@ public class Film {
             message = "Максимальная длина описания - 200 символов")
     private String description;
 
-    @NotNull(message = "Название не может быть пустым")
+    @NotNull(message = "Дата релиза не может быть пустой")
     @PastOrPresent(message = "Дата релиза не может быть в будущем")
     private LocalDate releaseDate;
 

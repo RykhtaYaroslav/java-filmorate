@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -16,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Тестирование FilmController")
 class FilmControllerTest {
 
-    private final FilmController filmController = new FilmController();
+    private final InMemoryFilmStorage storage = new InMemoryFilmStorage();
 
     @BeforeEach
     void setUp() {
         // Очищаем состояние контроллера перед каждым тестом
-        filmController.clearData();
+        storage.clearData();
     }
 
     @Test
@@ -34,11 +35,11 @@ class FilmControllerTest {
                 .duration(120L)
                 .build();
 
-        Film createdFilm = filmController.create(film);
+        Film createdFilm = storage.create(film);
 
         assertNotNull(createdFilm.getId());
         assertEquals("Название фильма", createdFilm.getName());
-        assertEquals(1, filmController.findAll().size());
+        assertEquals(1, storage.findAll().size());
     }
 
     @Test
@@ -51,7 +52,7 @@ class FilmControllerTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120L)
                 .build();
-        Film createdFilm = filmController.create(film);
+        Film createdFilm = storage.create(film);
         Long filmId = createdFilm.getId();
 
         // Обновляем фильм
@@ -63,7 +64,7 @@ class FilmControllerTest {
                 .duration(120L)
                 .build();
 
-        Film result = filmController.update(updatedFilm);
+        Film result = storage.update(updatedFilm);
 
         assertEquals(filmId, result.getId());
         assertEquals("Новое название", result.getName());
@@ -81,7 +82,7 @@ class FilmControllerTest {
                 .duration(120L)
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> filmController.update(film));
+        assertThrows(ConditionsNotMetException.class, () -> storage.update(film));
     }
 
     @Test
@@ -95,13 +96,13 @@ class FilmControllerTest {
                 .duration(120L)
                 .build();
 
-        assertThrows(NotFoundException.class, () -> filmController.update(film));
+        assertThrows(NotFoundException.class, () -> storage.update(film));
     }
 
     @Test
     @DisplayName("Получение всех фильмов должно возвращать пустой список при отсутствии фильмов")
     void findAll_NoFilms_ReturnsEmptyList() {
-        assertTrue(filmController.findAll().isEmpty());
+        assertTrue(storage.findAll().isEmpty());
     }
 
     @Test
@@ -121,12 +122,12 @@ class FilmControllerTest {
                 .duration(120L)
                 .build();
 
-        Film created1 = filmController.create(film1);
-        Film created2 = filmController.create(film2);
+        Film created1 = storage.create(film1);
+        Film created2 = storage.create(film2);
 
         assertNotNull(created1.getId());
         assertNotNull(created2.getId());
         assertNotEquals(created1.getId(), created2.getId());
-        assertEquals(2, filmController.findAll().size());
+        assertEquals(2, storage.findAll().size());
     }
 }
