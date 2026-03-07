@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exceptions.FriendshipException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -58,6 +60,52 @@ public class UserService {
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
         }
         return optionalUser.get();
+    }
+
+    public Friendship makeFriendship(Long userId, Long friendId) {
+        findById(userId); // Throw exception when no id or user with this id
+        findById(friendId); // Throw exception when no id or user with this id
+
+        Friendship friendship = new Friendship(userId, friendId);
+
+        if (storage.getFriendships().contains(friendship)) {
+            throw new FriendshipException(String.format("Пользователи с id = %d и id = %d уже друзья", userId, friendId));
+        }
+
+        return storage.makeFriendship(friendship);
+    }
+
+    public void deleteFriendship(Long userId, Long friendId) {
+        findById(userId); // Throw exception when no id or user with this id
+        findById(friendId); // Throw exception when no id or user with this id
+
+        Friendship friendship = new Friendship(userId, friendId);
+
+        if (!storage.getFriendships().contains(friendship)) {
+            throw new FriendshipException(String.format("Пользователи с id = %d и id = %d не были друзьями", userId, friendId));
+        }
+
+        storage.deleteFriendship(friendship);
+    }
+
+    public Collection<User> getFriends(Long id) {
+        findById(id); // Throw exception when no id or user with this id
+        return storage.getFriendships()
+                .stream()
+                .filter(f -> f.getFirstUserId().equals(id) || f.getSecondUserId().equals(id))
+                .map(f -> f.getFirstUserId().equals(id) ? f.getSecondUserId() : f.getFirstUserId())
+                .map(this::findById)
+                .toList();
+    }
+
+    public Collection<User> getCommonFriends(Long id, Long otherId) {
+        findById(id); // Throw exception when no id or user with this id
+        findById(otherId); // Throw exception when no id or user with this id
+
+        Collection<User> idFriends = getFriends(id);
+        Collection<User> otherIdFriends = getFriends(otherId);
+
+        return idFriends.stream().filter(otherIdFriends::contains).toList();
     }
 
     // вспомогательный метод для генерации идентификатора
