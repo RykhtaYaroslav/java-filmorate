@@ -24,14 +24,10 @@ public class FilmService {
         this.storage = storage;
     }
 
-    public Collection<Film> findAll() {
-        return storage.getFilms();
-    }
-
     public Film create(Film film) {
         checkReleaseData(film); //Throws exception when wrong release data
         film.setId(getNextId());
-        return storage.create(film, film.getId());
+        return storage.create(film);
     }
 
     public Film update(Film updFilm) {
@@ -45,6 +41,9 @@ public class FilmService {
         storage.delete(id);
     }
 
+    public Collection<Film> findAll() {
+        return storage.getFilms();
+    }
 
     public Film findById(Long id) {
         // Although "Return value of the method is never used", it may be useful in upcoming updates
