@@ -37,7 +37,7 @@ public class FilmService {
     }
 
     public Film update(Film updFilm) {
-        log.debug("Обновление фильма id = {}", updFilm);
+        log.debug("Обновление фильма id = {}", updFilm.getId());
         checkReleaseData(updFilm); //Throws exception when wrong release data
         findById(updFilm.getId()); //throws exception when wrong id
         log.info("Данные фильма id = {} обновлены", updFilm);
@@ -84,7 +84,7 @@ public class FilmService {
         return film;
     }
 
-    public Film deleteLike(Long filmId, Long userId){
+    public Film deleteLike(Long filmId, Long userId) {
         log.debug("Пользователь id = {} хочет убрать лайк с фильма id = {}", userId, filmId);
         userService.findById(userId);
         Film film = findById(filmId);

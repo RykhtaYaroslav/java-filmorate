@@ -23,5 +23,5 @@ public interface UserStorage {
     Friendship makeFriendship(Friendship friendship);
 
     void deleteFriendship(Friendship friendship);
-    
+
 }

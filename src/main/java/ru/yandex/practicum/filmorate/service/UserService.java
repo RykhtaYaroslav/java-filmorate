@@ -36,7 +36,7 @@ public class UserService {
     }
 
     public User update(User updUser) {
-        log.debug("Обновление пользователя: {}", updUser);
+        log.debug("Обновление пользователя: {}", updUser.getId());
         checkUserName(updUser); // Set email in name, when name was empty
         findById(updUser.getId()); // Throw exception when no id or user with this id
         log.info("Данные пользователя с id = {} обновлены", updUser);
@@ -136,7 +136,7 @@ public class UserService {
     }
 
     private boolean isEmailExist(User user) {
-        log.debug("Проверяется, не занят ли имейл {} пользователя id = {} другим пользователем", user.getEmail(),user.getId());
+        log.debug("Проверяется, не занят ли имейл {} пользователя id = {} другим пользователем", user.getEmail(), user.getId());
         return storage.getUsers().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
     }
 }

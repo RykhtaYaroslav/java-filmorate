@@ -13,7 +13,7 @@ public class Friendship {
 
     public Friendship(Long firstUserId, Long secondUserId) {
         // To avoid duplicates like (u1, u2) & (u2, u1) constructor use Math.max & min
-        this.firstUserId = Math.min(firstUserId,secondUserId);
+        this.firstUserId = Math.min(firstUserId, secondUserId);
         this.secondUserId = Math.max(firstUserId, secondUserId);
     }
 }

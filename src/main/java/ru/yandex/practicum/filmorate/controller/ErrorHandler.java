@@ -35,14 +35,14 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(NotFoundException e){
+    public ErrorResponse handleNotFoundException(NotFoundException e) {
         log.warn("Не найдено: {}", e.getMessage());
         return new ErrorResponse("Не найдено", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(ValidationException e){
+    public ErrorResponse handleValidationException(ValidationException e) {
         log.warn("Ошибка валидации: {}", e.getMessage());
         return new ErrorResponse("При проверке данных произошла ошибка", e.getMessage());
     }

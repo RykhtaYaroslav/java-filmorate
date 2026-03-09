@@ -59,7 +59,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count){
+    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return service.getPopularFilms(count);
     }
 

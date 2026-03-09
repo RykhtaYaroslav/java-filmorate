@@ -49,13 +49,13 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public Friendship makeFriendship(@PathVariable Long id, @PathVariable Long friendId){
+    public Friendship makeFriendship(@PathVariable Long id, @PathVariable Long friendId) {
         return service.makeFriendship(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFriendship(@PathVariable Long id, @PathVariable Long friendId){
+    public void deleteFriendship(@PathVariable Long id, @PathVariable Long friendId) {
         service.deleteFriendship(id, friendId);
     }
 
