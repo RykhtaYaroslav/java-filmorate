@@ -25,21 +25,25 @@ public class UserService {
     }
 
     public User create(User user) {
+        log.debug("Создание пользователя: {}", user);
         checkUserName(user); // Set email in name, when name was empty
         if (isEmailExist(user)) {
             throw new ValidationException("Пользователь с таким email уже существует");
         }
         user.setId(getNextId());
+        log.info("Пользователь создан с id = {}", user.getId());
         return storage.create(user);
     }
 
     public User update(User updUser) {
+        log.debug("Обновление пользователя: {}", updUser);
         checkUserName(updUser); // Set email in name, when name was empty
         findById(updUser.getId()); // Throw exception when no id or user with this id
         return storage.update(updUser);
     }
 
     public void delete(Long id) {
+        log.info("Пользователь с id = {} удалён", id);
         findById(id); // Throw exception when no id or user with this id
         storage.delete(id);
     }
@@ -71,7 +75,7 @@ public class UserService {
         if (storage.getFriendships().contains(friendship)) {
             throw new FriendshipException(String.format("Пользователи с id = %d и id = %d уже друзья", userId, friendId));
         }
-
+        log.info("Пользователи id = {} и id = {} теперь друзья", userId, friendId);
         return storage.makeFriendship(friendship);
     }
 
@@ -81,10 +85,7 @@ public class UserService {
 
         Friendship friendship = new Friendship(userId, friendId);
 
-        if (!storage.getFriendships().contains(friendship)) {
-            throw new FriendshipException(String.format("Пользователи с id = %d и id = %d не были друзьями", userId, friendId));
-        }
-
+        log.info("Пользователи id = {} и id = {} больше не друзья", userId, friendId);
         storage.deleteFriendship(friendship);
     }
 

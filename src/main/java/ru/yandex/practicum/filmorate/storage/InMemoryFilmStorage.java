@@ -25,7 +25,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film updFilm) {
         Film oldFilm = films.get(updFilm.getId());
-        BeanUtils.copyProperties(updFilm, oldFilm, "id");
+        BeanUtils.copyProperties(updFilm, oldFilm, "id", "likes");
         return oldFilm;
     }
 
