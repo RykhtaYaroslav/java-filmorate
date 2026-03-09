@@ -20,10 +20,12 @@ import java.util.Optional;
 public class FilmService {
     private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
     private final FilmStorage storage;
+    private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage storage) {
+    public FilmService(FilmStorage storage, UserService userService) {
         this.storage = storage;
+        this.userService = userService;
     }
 
     public Film create(Film film) {
@@ -35,24 +37,28 @@ public class FilmService {
     }
 
     public Film update(Film updFilm) {
-        log.debug("Обновление фильма: {}", updFilm);
+        log.debug("Обновление фильма id = {}", updFilm);
         checkReleaseData(updFilm); //Throws exception when wrong release data
         findById(updFilm.getId()); //throws exception when wrong id
+        log.info("Данные фильма id = {} обновлены", updFilm);
         return storage.update(updFilm);
     }
 
     public void delete(Long id) {
+        log.debug("Удаляется фильм с id = {} ", id);
         findById(id); //throws exception when wrong id
         log.info("Фильм с id = {} удалён", id);
         storage.delete(id);
     }
 
     public Collection<Film> findAll() {
+        log.info("Возвращается коллекция всех фильмов");
         return storage.getFilms();
     }
 
     public Film findById(Long id) {
         // Although "Return value of the method is never used", it may be useful in upcoming updates
+        log.debug("Выполняется поиск фильма по id = {}", id);
         if (id == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
@@ -62,12 +68,13 @@ public class FilmService {
         if (optionalFilm.isEmpty()) {
             throw new NotFoundException("Фильм с id = " + id + " не найден");
         }
+        log.debug("Найден фильм с id = {}", id);
         return optionalFilm.get();
     }
 
     public Film addLike(Long filmId, Long userId) {
         log.debug("Пользователь id = {} хочет поставить лайк фильму id = {}", userId, filmId);
-        findById(userId); //throws exception when wrong id
+        userService.findById(userId); //throws exception when wrong id
         Film film = findById(filmId);
         if (film.getLikes().contains(userId)) {
             throw new LikeException(String.format("Пользователь с id = %d уже поставил лайк фильму с id = %d", userId, filmId));
@@ -78,12 +85,14 @@ public class FilmService {
     }
 
     public Film deleteLike(Long filmId, Long userId){
-        log.debug("Пользователь id = {} убирает лайк с фильма id = {}", userId, filmId);
+        log.debug("Пользователь id = {} хочет убрать лайк с фильма id = {}", userId, filmId);
+        userService.findById(userId);
         Film film = findById(filmId);
         if (!film.getLikes().contains(userId)) {
             throw new LikeException(String.format("Пользователь с id = %d не ставил лайк фильму с id = %d", userId, filmId));
         }
         film.getLikes().remove(userId);
+        log.info("Пользователь id = {} убрал лайк с фильма id = {}", userId, filmId);
         return film;
     }
 
@@ -101,6 +110,7 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
+        log.debug("Дата релиза фильма прошла проверку");
     }
 
     // вспомогательный метод для генерации идентификатора

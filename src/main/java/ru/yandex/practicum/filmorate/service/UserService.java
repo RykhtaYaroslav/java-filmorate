@@ -39,21 +39,25 @@ public class UserService {
         log.debug("Обновление пользователя: {}", updUser);
         checkUserName(updUser); // Set email in name, when name was empty
         findById(updUser.getId()); // Throw exception when no id or user with this id
+        log.info("Данные пользователя с id = {} обновлены", updUser);
         return storage.update(updUser);
     }
 
     public void delete(Long id) {
-        log.info("Пользователь с id = {} удалён", id);
+        log.debug("Удаляется пользователь с id = {}", id);
         findById(id); // Throw exception when no id or user with this id
+        log.info("Пользователь с id = {} удалён", id);
         storage.delete(id);
     }
 
     public Collection<User> findAll() {
+        log.info("Возвращается коллекция всех пользователей");
         return storage.getUsers();
     }
 
     public User findById(Long id) {
         // Although "Return value of the method is never used", it may be useful in upcoming updates
+        log.debug("Выполняется поиск пользователя по id = {}", id);
         if (id == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
@@ -63,10 +67,12 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
         }
+        log.debug("Найден пользователь с id = {}", id);
         return optionalUser.get();
     }
 
     public Friendship makeFriendship(Long userId, Long friendId) {
+        log.debug("Пользователь id = {}  хочет добавить в друзья пользователя id = {}", userId, friendId);
         findById(userId); // Throw exception when no id or user with this id
         findById(friendId); // Throw exception when no id or user with this id
 
@@ -80,6 +86,7 @@ public class UserService {
     }
 
     public void deleteFriendship(Long userId, Long friendId) {
+        log.info("Пользователь id = {}  хочет удалить из друзей пользователя id = {}", userId, friendId);
         findById(userId); // Throw exception when no id or user with this id
         findById(friendId); // Throw exception when no id or user with this id
 
@@ -90,6 +97,7 @@ public class UserService {
     }
 
     public Collection<User> getFriends(Long id) {
+        log.debug("Поиск друзей пользователя id = {}", id);
         findById(id); // Throw exception when no id or user with this id
         return storage.getFriendships()
                 .stream()
@@ -100,12 +108,12 @@ public class UserService {
     }
 
     public Collection<User> getCommonFriends(Long id, Long otherId) {
+        log.debug("Поиск общих друзей пользователей id = {} и id = {}", id, otherId);
         findById(id); // Throw exception when no id or user with this id
         findById(otherId); // Throw exception when no id or user with this id
 
         Collection<User> idFriends = getFriends(id);
         Collection<User> otherIdFriends = getFriends(otherId);
-
         return idFriends.stream().filter(otherIdFriends::contains).toList();
     }
 
@@ -120,6 +128,7 @@ public class UserService {
     }
 
     private void checkUserName(User user) {
+        log.debug("Проверка имени пользователя id = {}", user.getId());
         if (user.getName() == null || user.getName().isEmpty()) {
             log.debug("Имя пользователя было пустым, установлен логин вместо имени");
             user.setName(user.getLogin());
@@ -127,6 +136,7 @@ public class UserService {
     }
 
     private boolean isEmailExist(User user) {
+        log.debug("Проверяется, не занят ли имейл {} пользователя id = {} другим пользователем", user.getEmail(),user.getId());
         return storage.getUsers().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
     }
 }
