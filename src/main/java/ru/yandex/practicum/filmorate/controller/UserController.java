@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.controller;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,12 +17,19 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
     private final UserService service;
 
     @Autowired
     public UserController(UserService service) {
         this.service = service;
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User findById(@PathVariable @Positive Long id) {
+        return service.findById(id);
     }
 
     @GetMapping
@@ -43,31 +52,31 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable @Positive Long id) {
         service.delete(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public Friendship makeFriendship(@PathVariable Long id, @PathVariable Long friendId) {
+    public Friendship makeFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
         return service.makeFriendship(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFriendship(@PathVariable Long id, @PathVariable Long friendId) {
+    public void deleteFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
         service.deleteFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getFriends(@PathVariable Long id) {
+    public Collection<User> getFriends(@PathVariable @Positive Long id) {
         return service.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    public Collection<User> getCommonFriends(@PathVariable @Positive Long id, @PathVariable @Positive Long otherId) {
         return service.getCommonFriends(id, otherId);
     }
 }

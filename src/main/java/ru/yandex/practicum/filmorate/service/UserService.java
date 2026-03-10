@@ -39,7 +39,7 @@ public class UserService {
         log.debug("Обновление пользователя: {}", updUser.getId());
         checkUserName(updUser); // Set email in name, when name was empty
         findById(updUser.getId()); // Throw exception when no id or user with this id
-        log.info("Данные пользователя с id = {} обновлены", updUser);
+        log.info("Данные пользователя с id = {} обновлены", updUser.getId());
         return storage.update(updUser);
     }
 
@@ -56,7 +56,6 @@ public class UserService {
     }
 
     public User findById(Long id) {
-        // Although "Return value of the method is never used", it may be useful in upcoming updates
         log.debug("Выполняется поиск пользователя по id = {}", id);
         if (id == null) {
             throw new ConditionsNotMetException("Id должен быть указан");

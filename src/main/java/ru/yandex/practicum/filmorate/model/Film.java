@@ -28,6 +28,5 @@ public class Film {
     @Min(value = 1, message = "Длительность должна быть положительной")
     private Long duration;
 
-
     private Set<Long> likes = new HashSet<>();
 }

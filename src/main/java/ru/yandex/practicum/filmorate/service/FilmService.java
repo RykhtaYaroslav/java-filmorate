@@ -40,7 +40,7 @@ public class FilmService {
         log.debug("Обновление фильма id = {}", updFilm.getId());
         checkReleaseData(updFilm); //Throws exception when wrong release data
         findById(updFilm.getId()); //throws exception when wrong id
-        log.info("Данные фильма id = {} обновлены", updFilm);
+        log.info("Данные фильма id = {} обновлены", updFilm.getId());
         return storage.update(updFilm);
     }
 
@@ -57,7 +57,6 @@ public class FilmService {
     }
 
     public Film findById(Long id) {
-        // Although "Return value of the method is never used", it may be useful in upcoming updates
         log.debug("Выполняется поиск фильма по id = {}", id);
         if (id == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
