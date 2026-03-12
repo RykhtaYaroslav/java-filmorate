@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.FriendshipStatus;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -70,29 +71,79 @@ public class UserService {
         return optionalUser.get();
     }
 
-    public Friendship makeFriendship(Long userId, Long friendId) {
-        log.debug("Пользователь id = {}  хочет добавить в друзья пользователя id = {}", userId, friendId);
-        findById(userId); // Throw exception when no id or user with this id
-        findById(friendId); // Throw exception when no id or user with this id
+    private Optional<Friendship> findExistingFriendship(Long userId1, Long userId2) {
+        Friendship direct = new Friendship(userId1, userId2);
+        Friendship reverse = new Friendship(userId2, userId1);
 
-        Friendship friendship = new Friendship(userId, friendId);
-
-        if (storage.getFriendships().contains(friendship)) {
-            throw new FriendshipException(String.format("Пользователи с id = %d и id = %d уже друзья", userId, friendId));
+        if (storage.getFriendships().contains(direct)) {
+            return storage.findFriendship(direct);
         }
-        log.info("Пользователи id = {} и id = {} теперь друзья", userId, friendId);
-        return storage.makeFriendship(friendship);
+        if (storage.getFriendships().contains(reverse)) {
+            return storage.findFriendship(reverse);
+        }
+        return Optional.empty();
+    }
+
+    public Friendship makeFriendship(Long fromUserId, Long toUserId) {
+        log.debug("Пользователь id = {} отправляет заявку в друзья пользователю id = {}", fromUserId, toUserId);
+        findById(fromUserId);
+        findById(toUserId);
+
+        Optional<Friendship> existing = findExistingFriendship(fromUserId, toUserId);
+
+        if (existing.isPresent()) {
+            Friendship friendship = existing.get();
+            if (friendship.getStatus() == FriendshipStatus.CONFIRMED) {
+                throw new FriendshipException(String.format("Пользователи id = %d и id = %d уже являются друзьями", fromUserId, toUserId));
+            }
+            if (friendship.getFromUserId().equals(fromUserId)) {
+                throw new FriendshipException(String.format("Пользователь id = %d уже отправил заявку пользователю id = %d", fromUserId, toUserId));
+            }
+            // reverse unconfirmed — подтверждаем
+            log.info("Пользователь id = {} принял заявку от пользователя id = {}", fromUserId, toUserId);
+            return confirmFriendship(toUserId, fromUserId);
+        }
+
+        log.info("Пользователь id = {} отправил заявку в друзья пользователю id = {}", fromUserId, toUserId);
+        return storage.makeFriendship(new Friendship(fromUserId, toUserId));
+    }
+
+    public Friendship confirmFriendship(Long fromUserId, Long toUserId) {
+        log.debug("Пользователь id = {} пытается подтвердить дружбу с пользователем id = {}", fromUserId, toUserId);
+        findById(fromUserId);
+        findById(toUserId);
+
+        Optional<Friendship> existing = findExistingFriendship(fromUserId, toUserId);
+
+        if (existing.isEmpty()) {
+            log.info("Заявки не найдено, создаётся новая от пользователя id = {}", fromUserId);
+            return storage.makeFriendship(new Friendship(fromUserId, toUserId));
+        }
+
+        Friendship friendship = existing.get();
+
+        if (friendship.getStatus() == FriendshipStatus.CONFIRMED) {
+            throw new FriendshipException(String.format("Пользователи id = %d и id = %d уже являются друзьями", fromUserId, toUserId));
+        }
+
+        friendship.setStatus(FriendshipStatus.CONFIRMED);
+        log.info("Дружба между пользователями id = {} и id = {} подтверждена", fromUserId, toUserId);
+        return friendship;
     }
 
     public void deleteFriendship(Long userId, Long friendId) {
-        log.info("Пользователь id = {}  хочет удалить из друзей пользователя id = {}", userId, friendId);
-        findById(userId); // Throw exception when no id or user with this id
-        findById(friendId); // Throw exception when no id or user with this id
+        log.debug("Пользователь id = {} хочет удалить из друзей пользователя id = {}", userId, friendId);
+        findById(userId);
+        findById(friendId);
 
-        Friendship friendship = new Friendship(userId, friendId);
+        Optional<Friendship> existing = findExistingFriendship(userId, friendId);
+
+        if (existing.isEmpty()) {
+            throw new FriendshipException(String.format("Пользователи id = %d и id = %d не являются друзьями", userId, friendId));
+        }
 
         log.info("Пользователи id = {} и id = {} больше не друзья", userId, friendId);
-        storage.deleteFriendship(friendship);
+        storage.deleteFriendship(existing.get());
     }
 
     public Collection<User> getFriends(Long id) {
@@ -100,8 +151,8 @@ public class UserService {
         findById(id); // Throw exception when no id or user with this id
         return storage.getFriendships()
                 .stream()
-                .filter(f -> f.getFirstUserId().equals(id) || f.getSecondUserId().equals(id))
-                .map(f -> f.getFirstUserId().equals(id) ? f.getSecondUserId() : f.getFirstUserId())
+                .filter(f -> f.getFromUserId().equals(id) || f.getToUserId().equals(id))
+                .map(f -> f.getFromUserId().equals(id) ? f.getToUserId() : f.getFromUserId())
                 .map(this::findById)
                 .toList();
     }

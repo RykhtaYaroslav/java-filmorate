@@ -56,4 +56,11 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteFriendship(Friendship friendship) {
         friendships.remove(friendship);
     }
+
+    @Override
+    public Optional<Friendship> findFriendship(Friendship friendship) {
+        return friendships.stream()
+                .filter(f -> f.equals(friendship))
+                .findFirst();
+    }
 }

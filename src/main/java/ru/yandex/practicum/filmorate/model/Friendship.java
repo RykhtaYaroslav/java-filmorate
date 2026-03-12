@@ -2,18 +2,22 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import ru.yandex.practicum.filmorate.model.enums.FriendshipStatus;
 
 @EqualsAndHashCode
 @ToString
 @Getter
 public class Friendship {
-    private final Long firstUserId;
-    private final Long secondUserId;
+    private final Long fromUserId;
+    private final Long toUserId;
+    @Setter
+    private FriendshipStatus status;
 
-    public Friendship(Long firstUserId, Long secondUserId) {
-        // To avoid duplicates like (u1, u2) & (u2, u1) constructor use Math.max & min
-        this.firstUserId = Math.min(firstUserId, secondUserId);
-        this.secondUserId = Math.max(firstUserId, secondUserId);
+    public Friendship(Long fromUserId, Long toUserId) {
+        this.fromUserId = fromUserId;
+        this.toUserId = toUserId;
+        this.status = FriendshipStatus.UNCONFIRMED;
     }
 }

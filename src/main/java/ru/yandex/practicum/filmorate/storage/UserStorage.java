@@ -24,4 +24,6 @@ public interface UserStorage {
 
     void deleteFriendship(Friendship friendship);
 
+    Optional<Friendship> findFriendship(Friendship friendship);
+
 }
