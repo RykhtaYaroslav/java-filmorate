@@ -1,0 +1,66 @@
+package ru.yandex.practicum.filmorate.storage;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Friendship;
+import ru.yandex.practicum.filmorate.model.User;
+
+import java.util.*;
+
+@Component
+public class InMemoryUserStorage implements UserStorage {
+
+    private final Map<Long, User> users = new HashMap<>();
+    private final Set<Friendship> friendships = new HashSet<>();
+
+    @Override
+    public User create(User user) {
+        users.put(user.getId(), user);
+        return user;
+    }
+
+    @Override
+    public User update(User updUser) {
+        User oldUser = users.get(updUser.getId());
+        BeanUtils.copyProperties(updUser, oldUser, "id");
+        return oldUser;
+    }
+
+    @Override
+    public void delete(Long id) {
+        users.remove(id);
+    }
+
+    @Override
+    public Collection<User> getUsers() {
+        return users.values();
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(users.get(id));
+    }
+
+    @Override
+    public Set<Friendship> getFriendships() {
+        return friendships;
+    }
+
+    @Override
+    public Friendship makeFriendship(Friendship friendship) {
+        friendships.add(friendship);
+        return friendship;
+    }
+
+    @Override
+    public void deleteFriendship(Friendship friendship) {
+        friendships.remove(friendship);
+    }
+
+    @Override
+    public Optional<Friendship> findFriendship(Friendship friendship) {
+        return friendships.stream()
+                .filter(f -> f.equals(friendship))
+                .findFirst();
+    }
+}

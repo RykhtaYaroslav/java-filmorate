@@ -2,73 +2,87 @@ package ru.yandex.practicum.filmorate.controller;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.annotation.TestOnly;
-import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.Validator;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
+    private final UserService service;
+
+    @Autowired
+    public UserController(UserService service) {
+        this.service = service;
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User findById(@PathVariable @Positive Long id) {
+        return service.findById(id);
+    }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Collection<User> findAll() {
-        return users.values();
+        return service.findAll();
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@Valid @RequestBody User user) {
-        Validator.validateUser(user);
-        if (isExist(user)) {
-            throw new ValidationException("Пользователь с таким email уже существует");
-        }
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-        return user;
+        return service.create(user);
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User newUser) {
-        if (newUser.getId() == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-
-        if (users.containsKey(newUser.getId())) {
-            User oldUser = users.get(newUser.getId());
-            BeanUtils.copyProperties(newUser, oldUser, "id");
-            return oldUser;
-        }
-        throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+    @ResponseStatus(HttpStatus.OK)
+    public User update(@Valid @RequestBody User updUser) {
+        return service.update(updUser);
     }
 
-    // вспомогательный метод для генерации идентификатора
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable @Positive Long id) {
+        service.delete(id);
     }
 
-    @TestOnly
-    public void clearData() {
-        users.clear();
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Friendship makeFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
+        return service.makeFriendship(id, friendId);
     }
 
-    private boolean isExist(User user) {
-        return users.values().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
+    @PutMapping("/{id}/friends/{friendId}/confirm")
+    @ResponseStatus(HttpStatus.OK)
+    public Friendship confirmFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
+        return service.confirmFriendship(id, friendId);
     }
 
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
+        service.deleteFriendship(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> getFriends(@PathVariable @Positive Long id) {
+        return service.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> getCommonFriends(@PathVariable @Positive Long id, @PathVariable @Positive Long otherId) {
+        return service.getCommonFriends(id, otherId);
+    }
 }

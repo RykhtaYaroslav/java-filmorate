@@ -6,11 +6,13 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
 @Data
 @Builder(toBuilder = true)
+@EqualsAndHashCode(of = "id")
 public class User {
     private Long id;
 

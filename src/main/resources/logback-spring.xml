@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <timestamp key="startTime" datePattern="yyyy-MM-dd_HH-mm"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/application-${startTime}.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%-20.20logger{20}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <logger name="ru.yandex.practicum" level="DEBUG"/>
+</configuration>
