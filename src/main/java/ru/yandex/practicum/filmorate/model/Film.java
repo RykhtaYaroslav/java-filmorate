@@ -3,12 +3,9 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import ru.yandex.practicum.filmorate.model.enums.Genre;
 import ru.yandex.practicum.filmorate.model.enums.MpaRating;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
@@ -28,11 +25,6 @@ public class Film {
 
     @Min(value = 1, message = "Длительность должна быть положительной")
     private Long duration;
-
-    private Set<Long> likes = new HashSet<>();
-
-    @NotEmpty
-    private Set<Genre> genres;
 
     @NotNull(message = "Возрастной рейтинг должен быть указан")
     private MpaRating rating;
