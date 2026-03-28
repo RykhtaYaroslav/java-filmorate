@@ -7,7 +7,10 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-@Component
+/**
+ * @deprecated use UserDbStorage instead
+ */
+@Deprecated(since = "db-migration", forRemoval = true)
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();

@@ -11,8 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Component
-@Slf4j
+/**
+ * @deprecated use FilmDbStorage instead
+ */
+@Deprecated(since = "db-migration", forRemoval = true)
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
