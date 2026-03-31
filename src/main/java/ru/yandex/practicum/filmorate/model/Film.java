@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ru.yandex.practicum.filmorate.model.enums.Genre;
 import ru.yandex.practicum.filmorate.model.enums.MpaRating;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
@@ -15,4 +17,5 @@ public class Film {
     private LocalDate releaseDate;
     private long duration;
     private MpaRating rating;
+    private Set<Genre> genres;
 }

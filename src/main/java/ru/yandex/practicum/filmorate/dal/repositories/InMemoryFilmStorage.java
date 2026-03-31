@@ -1,15 +1,10 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dal.repositories;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.annotation.TestOnly;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @deprecated use FilmDbStorage instead
@@ -37,8 +32,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getFilms() {
-        return films.values();
+    public Set<Film> getFilms() {
+        return new LinkedHashSet<>(films.values());
     }
 
     @Override
