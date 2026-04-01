@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreBatchSetter;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
@@ -92,7 +94,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             setGenres(film);
         }
 
-        return film;
+        return findById(film.getId()).orElseThrow(() ->
+                new IllegalStateException("Фильм был обновлен, но не найден. Этого не должно было случиться."));
     }
 
     @Override
