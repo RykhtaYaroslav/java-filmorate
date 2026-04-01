@@ -18,12 +18,15 @@ public interface UserStorage {
 
     Optional<User> findById(Long id);
 
-    Set<Friendship> getFriendships();
+    Set<User> getUserFriends(Long id);
 
-    Friendship makeFriendship(Friendship friendship);
+    Friendship sendFriendRequest(Friendship friendship);
 
     void deleteFriendship(Friendship friendship);
 
     Optional<Friendship> findFriendship(Friendship friendship);
 
+    Friendship confirmFriendship(Friendship friendship);
+
+    Set<User> findCommonFriends(Long id, Long otherId);
 }

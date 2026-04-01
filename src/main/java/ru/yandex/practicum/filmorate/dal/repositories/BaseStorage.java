@@ -35,10 +35,21 @@ public class BaseStorage<T> {
         return jdbc.query(query, rs);
     }
 
+    protected Set<T> findMany(String query, ResultSetExtractor<Set<T>> rs, Object... params) {
+        return jdbc.query(query, rs, params);
+    }
+
     protected void delete(String query, long id) {
         int rowsDeleted = jdbc.update(query, id);
         if (rowsDeleted == 0) {
             throw new NotFoundException("Сущность с id " + id + " не найдена, удаление невозможно");
+        }
+    }
+
+    protected void delete(String query, Object... params) {
+        int rowsDeleted = jdbc.update(query, params);
+        if (rowsDeleted == 0) {
+            throw new NotFoundException("Пользователи не существуют или не являются друзьями");
         }
     }
 

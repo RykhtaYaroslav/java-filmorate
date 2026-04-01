@@ -44,12 +44,12 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Set<Friendship> getFriendships() {
-        return friendships;
+    public Set<User> getUserFriends(Long id) {
+        return null;
     }
 
     @Override
-    public Friendship makeFriendship(Friendship friendship) {
+    public Friendship sendFriendRequest(Friendship friendship) {
         friendships.add(friendship);
         return friendship;
     }
@@ -64,5 +64,15 @@ public class InMemoryUserStorage implements UserStorage {
         return friendships.stream()
                 .filter(f -> f.equals(friendship))
                 .findFirst();
+    }
+
+    @Override
+    public Friendship confirmFriendship(Friendship friendship) {
+        return null;
+    }
+
+    @Override
+    public Set<User> findCommonFriends(Long id, Long otherId) {
+        return Set.of();
     }
 }
