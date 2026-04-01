@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.mappers;
+package ru.yandex.practicum.filmorate.dal.mappers.film;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
