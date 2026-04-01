@@ -35,9 +35,11 @@ public class BaseStorage<T> {
         return jdbc.query(query, rs);
     }
 
-    protected boolean delete(String query, long id) {
+    protected void delete(String query, long id) {
         int rowsDeleted = jdbc.update(query, id);
-        return rowsDeleted > 0;
+        if (rowsDeleted == 0) {
+            throw new NotFoundException("Сущность с id " + id + " не найдена, удаление невозможно");
+        }
     }
 
     protected void update(String query, Object... params) {
