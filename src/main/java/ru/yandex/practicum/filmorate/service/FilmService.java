@@ -80,35 +80,33 @@ public class FilmService {
         return FilmMapper.mapToFilmDto(optionalFilm.get());
     }
 
-    public Film addLike(Long filmId, Long userId) {
+    public FilmDto addLike(Long filmId, Long userId) {
         log.debug("Пользователь id = {} хочет поставить лайк фильму id = {}", userId, filmId);
-        userService.findById(userId); //throws exception when wrong id
-        Film film = findById(filmId);
-        if (film.getLikes().contains(userId)) {
-            throw new LikeException(String.format("Пользователь с id = %d уже поставил лайк фильму с id = %d", userId, filmId));
-        }
-        film.getLikes().add(userId);
+
+        Film film = storage.addLike(filmId, userId);
+
+        FilmDto dto = FilmMapper.mapToFilmDto(film);
+
         log.info("Пользователь id = {} поставил лайк фильму id = {}", userId, filmId);
-        return film;
+        return dto;
     }
 
-    public Film deleteLike(Long filmId, Long userId) {
+    public FilmDto deleteLike(Long filmId, Long userId) {
         log.debug("Пользователь id = {} хочет убрать лайк с фильма id = {}", userId, filmId);
-        userService.findById(userId);
-        Film film = findById(filmId);
-        if (!film.getLikes().contains(userId)) {
-            throw new LikeException(String.format("Пользователь с id = %d не ставил лайк фильму с id = %d", userId, filmId));
-        }
-        film.getLikes().remove(userId);
+
+        storage.deleteLike(filmId, userId);
+
+        Film film = storage.findById(filmId).get();
+
+        FilmDto dto = FilmMapper.mapToFilmDto(film);
+
         log.info("Пользователь id = {} убрал лайк с фильма id = {}", userId, filmId);
-        return film;
+        return dto;
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        return storage.getFilms()
-                .stream()
-                .sorted(Comparator.comparing((Film f) -> f.getLikes().size()).reversed())
-                .limit(count)
-                .toList();
+    public Collection<FilmDto> getPopularFilms(int count) {
+        Collection<Film> filmSet = storage.getPopularFilms(count);
+
+        return  filmSet.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toSet());
     }
 }

@@ -71,6 +71,7 @@ public final class FilmMapper {
         } else {
             dto.setGenreIds(Collections.emptySet());
         }
+        dto.setUserLikeIds(film.getUserLikeIds());
 
         return dto;
     }

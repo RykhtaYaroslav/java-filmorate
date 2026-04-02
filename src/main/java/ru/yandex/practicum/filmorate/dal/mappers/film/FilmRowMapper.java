@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.enums.MpaRating;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 @Component
@@ -28,6 +29,7 @@ public class FilmRowMapper implements RowMapper<Film> {
 
         film.setRating(MpaRating.fromId(mpaId));
         film.setGenres(new LinkedHashSet<>());
+        film.setUserLikeIds(new HashSet<>());
 
         return film;
     }

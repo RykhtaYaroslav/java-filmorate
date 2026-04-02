@@ -9,7 +9,10 @@ import ru.yandex.practicum.filmorate.model.enums.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +32,15 @@ public class FilmExtractor implements ResultSetExtractor<Set<Film>> {
                 film = filmMapper.mapRow(rs, rs.getRow());
                 films.put(id, film);
             }
-            int genreId = rs.getInt("genre_id");
 
-            if (genreId != 0) {
+            int genreId = rs.getInt("genre_id");
+            if (!rs.wasNull() && genreId != 0) {
                 film.getGenres().add(Genre.fromId(genreId));
+            }
+
+            long userId = rs.getLong("user_id");
+            if (!rs.wasNull() && userId != 0) {
+                film.getUserLikeIds().add(userId);
             }
         }
         return new LinkedHashSet<>(films.values());
