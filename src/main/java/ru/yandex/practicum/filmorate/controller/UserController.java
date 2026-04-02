@@ -60,8 +60,8 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public Friendship makeFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
-        return service.makeFriendship(id, friendId);
+    public Friendship sendFriendshipRequest(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
+        return service.sendFriendshipRequest(id, friendId);
     }
 
     @PutMapping("/{id}/friends/{friendId}/confirm")

@@ -20,7 +20,7 @@ public interface UserStorage {
 
     Set<User> getUserFriends(Long id);
 
-    Friendship sendFriendRequest(Friendship friendship);
+    Friendship sendFriendshipRequest(Friendship friendship);
 
     void deleteFriendship(Friendship friendship);
 

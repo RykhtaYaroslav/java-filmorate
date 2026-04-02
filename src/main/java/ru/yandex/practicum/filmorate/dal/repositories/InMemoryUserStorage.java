@@ -49,7 +49,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Friendship sendFriendRequest(Friendship friendship) {
+    public Friendship sendFriendshipRequest(Friendship friendship) {
         friendships.add(friendship);
         return friendship;
     }

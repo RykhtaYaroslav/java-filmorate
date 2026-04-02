@@ -147,7 +147,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
     }
 
     @Override
-    public Friendship sendFriendRequest(Friendship friendship) {
+    public Friendship sendFriendshipRequest(Friendship friendship) {
         try {
             jdbc.update(SEND_FRIENDSHIP_REQUEST, friendship.getFromUserId(), friendship.getToUserId());
 
