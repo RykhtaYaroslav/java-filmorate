@@ -12,45 +12,40 @@ import ru.yandex.practicum.filmorate.exceptions.*;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    @ExceptionHandler
+    @ExceptionHandler({
+            ValidationException.class,
+            ConditionsNotMetException.class,
+            FriendshipException.class,
+            LikeException.class,
+            MethodArgumentNotValidException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConditionsNotMetException(ConditionsNotMetException e) {
-        log.warn("Ошибка валидации: {}", e.getMessage());
-        return new ErrorResponse("Недостаточно данных", e.getMessage());
+    public ErrorResponse handleBadRequest(Exception e) {
+        log.warn("Ошибка валидации или запроса: {}", e.getMessage());
+        return new ErrorResponse("Ошибка в параметрах запроса", e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFriendshipException(FriendshipException e) {
-        log.warn("Ошибка валидации: {}", e.getMessage());
-        return new ErrorResponse("Ошибка при добавлении или удалении друзей", e.getMessage());
-    }
-
-    @ExceptionHandler({MethodArgumentNotValidException.class, LikeException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleLikeException(Exception e) {
-        log.warn("Ошибка валидации: {}", e.getMessage());
-        return new ErrorResponse("Ошибка при добавлении или удалении лайка", e.getMessage());
-    }
-
-    @ExceptionHandler
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(NotFoundException e) {
-        log.warn("Не найдено: {}", e.getMessage());
-        return new ErrorResponse("Не найдено", e.getMessage());
+    public ErrorResponse handleNotFound(NotFoundException e) {
+        log.warn("Объект не найден: {}", e.getMessage());
+        return new ErrorResponse("Искомый объект не найден", e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(ValidationException e) {
-        log.warn("Ошибка валидации: {}", e.getMessage());
-        return new ErrorResponse("При проверке данных произошла ошибка", e.getMessage());
+    @ExceptionHandler(DataConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflict(DataConflictException e) {
+        log.warn("Конфликт данных: {}", e.getMessage());
+        return new ErrorResponse("Конфликт при сохранении данных", e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({
+            DatabaseException.class,
+            Throwable.class
+    })
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handle(Throwable e) {
-        log.error("Неизвестная ошибка: {}", e.getMessage());
-        return new ErrorResponse("Неизвестная ошибка", e.getMessage());
+    public ErrorResponse handleServerError(Throwable e) {
+        log.error("Критическая ошибка: ", e);
+        return new ErrorResponse("Произошла внутренняя ошибка сервера", e.getMessage());
     }
 }
