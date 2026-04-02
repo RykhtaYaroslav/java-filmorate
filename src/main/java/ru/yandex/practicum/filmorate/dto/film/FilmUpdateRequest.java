@@ -23,11 +23,11 @@ public class FilmUpdateRequest {
     private LocalDate releaseDate;
 
     @Positive(message = "Длительность должна быть положительной")
-    private long duration;
+    private Long duration;
 
     @Min(message = "Неверно указан id возрастного рейтинга", value = 1L)
     @Max(message = "Неверно указан id возрастного рейтинга", value = 5L)
-    private long ratingId;
+    private Integer ratingId;
 
     List<@Positive Integer> genreIds;
 }

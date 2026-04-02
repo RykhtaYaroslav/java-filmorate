@@ -27,7 +27,7 @@ public class FilmCreateRequest {
     @NotNull(message = "Возрастной рейтинг должен быть указан")
     @Min(message = "Неверно указан id возрастного рейтинга", value = 1L)
     @Max(message = "Неверно указан id возрастного рейтинга", value = 5L)
-    private Long ratingId;
+    private Integer ratingId;
 
     @NotEmpty(message = "Жанры фильма должны быть указаны")
     List<@NotNull @Positive Integer> genreIds;

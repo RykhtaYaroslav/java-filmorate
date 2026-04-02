@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.dto.film;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class FilmDto {
@@ -12,6 +12,6 @@ public class FilmDto {
     private String description;
     private LocalDate releaseDate;
     private long duration;
-    private long ratingId;
-    List<Integer> genreIds;
+    private Integer ratingId;
+    Set<Integer> genreIds;
 }
