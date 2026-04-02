@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.annotation.MinimumDate;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +17,7 @@ public class FilmCreateRequest {
 
     @NotNull(message = "Дата релиза не может быть пустой")
     @PastOrPresent(message = "Дата релиза не может быть в будущем")
+    @MinimumDate(message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
 
     @NotNull
@@ -23,7 +25,8 @@ public class FilmCreateRequest {
     private Long duration;
 
     @NotNull(message = "Возрастной рейтинг должен быть указан")
-    @Positive(message = "Неверно указан id возрастного рейтинга")
+    @Min(message = "Неверно указан id возрастного рейтинга", value = 1L)
+    @Max(message = "Неверно указан id возрастного рейтинга", value = 5L)
     private Long ratingId;
 
     @NotEmpty(message = "Жанры фильма должны быть указаны")

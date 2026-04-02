@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.film.FilmCreateRequest;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.FilmUpdateRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -26,26 +29,26 @@ public class FilmController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Film findById(@PathVariable @Positive Long id) {
+    public FilmDto findById(@PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         return service.findAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Film create(@Valid @RequestBody Film film) {
-        return service.create(film);
+    public FilmDto create(@Valid @RequestBody FilmCreateRequest filmCreateRequest) {
+        return service.create(filmCreateRequest);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public Film update(@Valid @RequestBody Film newFilm) {
-        return service.update(newFilm);
+    public FilmDto update(@Valid @RequestBody FilmUpdateRequest filmUpdateRequest) {
+        return service.update(filmUpdateRequest);
     }
 
     @DeleteMapping("/{id}")
@@ -56,20 +59,19 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Film addLike(@PathVariable @Positive Long id, @PathVariable @Positive Long userId) {
+    public FilmDto addLike(@PathVariable @Positive Long id, @PathVariable @Positive Long userId) {
         return service.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Film deleteLike(@PathVariable @Positive Long id, @PathVariable @Positive Long userId) {
-        return service.deleteLike(id, userId);
+    public void deleteLike(@PathVariable @Positive Long id, @PathVariable @Positive Long userId) {
+        service.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
+    public Collection<FilmDto> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
         return service.getPopularFilms(count);
     }
-
 }
