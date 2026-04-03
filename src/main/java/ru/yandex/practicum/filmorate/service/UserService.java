@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.dto.user.UserCreateRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserUpdateRequest;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.FriendshipException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
@@ -83,6 +84,10 @@ public class UserService {
 
     public Friendship sendFriendshipRequest(Long fromUserId, Long toUserId) {
         log.debug("Пользователь id = {} отправляет заявку в друзья пользователю id = {}", fromUserId, toUserId);
+
+        if (fromUserId.equals(toUserId)) {
+            throw new DataConflictException("Нельзя добавить самого себя в друзья");
+        }
 
         Friendship friendship = storage.sendFriendshipRequest(new Friendship(fromUserId, toUserId));
 

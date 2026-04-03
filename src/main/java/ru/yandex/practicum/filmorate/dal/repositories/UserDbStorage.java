@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal.repositories;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -53,8 +54,8 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             """;
 
     private static final String SEND_FRIENDSHIP_REQUEST = """
-            INSERT INTO user_friends (user_id, friend_id)
-            VALUES(?, ?)""";
+            INSERT INTO user_friends (user_id, friend_id, status)
+            VALUES(?, ?, ?)""";
 
     private static final String DELETE_FRIENDSHIP_QUERY = """
             DELETE FROM user_friends
@@ -149,10 +150,18 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
     @Override
     public Friendship sendFriendshipRequest(Friendship friendship) {
         try {
-            jdbc.update(SEND_FRIENDSHIP_REQUEST, friendship.getFromUserId(), friendship.getToUserId());
+            jdbc.update(SEND_FRIENDSHIP_REQUEST, friendship.getFromUserId(), friendship.getToUserId(), FriendshipStatus.UNCONFIRMED.toString());
 
+        } catch (DuplicateKeyException e) {
+            throw new DataConflictException(
+                    String.format("Запрос на дружбу между %d и %d уже существует",
+                            friendship.getFromUserId(), friendship.getToUserId())
+            );
         } catch (DataIntegrityViolationException e) {
-            throw new NotFoundException("Один из пользователей не найден");
+            throw new NotFoundException(
+                    String.format("Один из пользователей (ID: %d или %d) не найден в базе",
+                            friendship.getFromUserId(), friendship.getToUserId())
+            );
         }
         return findFriendship(friendship).orElseThrow(() ->
                 new IllegalStateException("Данные сохранены, но не найдены. Этого не должно было случиться."));
