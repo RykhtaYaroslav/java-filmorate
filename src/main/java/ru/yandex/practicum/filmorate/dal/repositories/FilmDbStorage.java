@@ -11,7 +11,10 @@ import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
@@ -89,6 +92,11 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 ORDER BY COUNT(fl.user_id) DESC
                 LIMIT ?
             )
+            ORDER BY (
+                SELECT COUNT(fl2.user_id)
+                FROM film_likes fl2
+                WHERE fl2.film_id = f.id
+            ) DESC, f.id ASC
             """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, ResultSetExtractor<Set<Film>> extractor) {

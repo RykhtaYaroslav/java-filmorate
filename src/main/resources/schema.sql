@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS films (
     description  VARCHAR(200),
     release_date DATE NOT NULL,
     duration     INT NOT NULL,
-    rating_id    BIGINT,
+    rating_id    BIGINT NOT NULL CHECK (rating_id BETWEEN 1 AND 5),
     FOREIGN KEY (rating_id) REFERENCES mpa_ratings(id)
 );
 
