@@ -128,7 +128,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 film.getRating().getId(),
                 film.getId());
 
-        if (film.getGenres() != null) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             delete(DELETE_GENRES_QUERY, film.getId());
             setGenres(film);
         }
