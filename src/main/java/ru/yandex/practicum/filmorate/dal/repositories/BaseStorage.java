@@ -51,7 +51,7 @@ public class BaseStorage<T> {
     protected void delete(String query, Object... params) {
         int rowsDeleted = jdbc.update(query, params);
         if (rowsDeleted == 0) {
-            throw new NotFoundException("Пользователи не существуют или не являются друзьями");
+            throw new NotFoundException("Не удалось удалить данные");
         }
     }
 

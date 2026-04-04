@@ -90,15 +90,6 @@ public class UserService {
         return friendship;
     }
 
-    public Friendship confirmFriendship(Long fromUserId, Long toUserId) {
-        log.debug("Пользователь id = {} пытается подтвердить дружбу с пользователем id = {}", fromUserId, toUserId);
-
-        Friendship friendship = storage.confirmFriendship(new Friendship(fromUserId, toUserId));
-
-        log.info("Дружба между пользователями id = {} и id = {} подтверждена", fromUserId, toUserId);
-        return friendship;
-    }
-
     public void deleteFriendship(Long userId, Long friendId) {
         log.debug("Пользователь id = {} хочет удалить из друзей пользователя id = {}", userId, friendId);
 
@@ -109,6 +100,10 @@ public class UserService {
 
     public Collection<UserDto> getUserFriends(Long id) {
         log.debug("Поиск друзей пользователя id = {}", id);
+
+        if (storage.findById(id).isEmpty()) {
+            throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
+        }
 
         Set<User> friends = storage.getUserFriends(id);
 

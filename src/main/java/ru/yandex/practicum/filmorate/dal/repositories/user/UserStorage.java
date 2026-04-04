@@ -26,7 +26,5 @@ public interface UserStorage {
 
     Optional<Friendship> findFriendship(Friendship friendship);
 
-    Friendship confirmFriendship(Friendship friendship);
-
     Set<User> findCommonFriends(Long id, Long otherId);
 }

@@ -67,11 +67,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Friendship confirmFriendship(Friendship friendship) {
-        return null;
-    }
-
-    @Override
     public Set<User> findCommonFriends(Long id, Long otherId) {
         return Set.of();
     }

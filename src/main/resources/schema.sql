@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS user_friends (
     user_id BIGINT NOT NULL,
     friend_id BIGINT NOT NULL,
-    status VARCHAR(20) NOT NULL,  -- 'UNCONFIRMED' или 'CONFIRMED'
     PRIMARY KEY (user_id, friend_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE,

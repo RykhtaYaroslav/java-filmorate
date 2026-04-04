@@ -60,11 +60,6 @@ public class UserController {
         return service.sendFriendshipRequest(id, friendId);
     }
 
-    @PutMapping("/{id}/friends/{friendId}/confirm")
-    public Friendship confirmFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
-        return service.confirmFriendship(id, friendId);
-    }
-
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
