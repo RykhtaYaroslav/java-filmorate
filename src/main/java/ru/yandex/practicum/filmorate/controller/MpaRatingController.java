@@ -27,7 +27,10 @@ public class MpaRatingController {
     }
 
     @GetMapping("/{id}")
-    public MpaRatingDto findById(@PathVariable @Min(1) @Max(RATINGS_AMOUNT) int id) {
+    public MpaRatingDto findById(@PathVariable
+                                 @Min(value = 1, message = "id может быть от 1 до " + RATINGS_AMOUNT)
+                                 @Max(value = RATINGS_AMOUNT, message = "id может быть от 1 до " + RATINGS_AMOUNT)
+                                 int id) {
         return service.findById(id);
     }
 }
