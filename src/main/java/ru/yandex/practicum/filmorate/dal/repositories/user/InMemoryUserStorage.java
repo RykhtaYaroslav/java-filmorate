@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.repositories;
+package ru.yandex.practicum.filmorate.dal.repositories.user;
 
 import org.springframework.beans.BeanUtils;
 import ru.yandex.practicum.filmorate.model.Friendship;

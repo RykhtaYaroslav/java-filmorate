@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.repositories;
+package ru.yandex.practicum.filmorate.dal.repositories.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 

@@ -2,20 +2,17 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.repositories.UserStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.dto.user.UserCreateRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserUpdateRequest;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
-import ru.yandex.practicum.filmorate.exceptions.FriendshipException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.enums.FriendshipStatus;
 
 import java.util.Collection;
 import java.util.Optional;

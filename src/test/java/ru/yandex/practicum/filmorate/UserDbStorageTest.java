@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,7 @@ import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
 import ru.yandex.practicum.filmorate.dal.mappers.user.UserExtractor;
 import ru.yandex.practicum.filmorate.dal.mappers.user.UserRowMapper;
-import ru.yandex.practicum.filmorate.dal.repositories.UserDbStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;

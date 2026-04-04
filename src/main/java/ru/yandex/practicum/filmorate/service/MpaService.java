@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.repositories.MpaDbStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.dto.mappers.MpaMapper;
 import ru.yandex.practicum.filmorate.dto.mpa.MpaRatingDto;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;

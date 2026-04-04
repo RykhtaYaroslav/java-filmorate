@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.repositories;
+package ru.yandex.practicum.filmorate.dal.repositories.film;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.film.GenreBatchSetter;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;

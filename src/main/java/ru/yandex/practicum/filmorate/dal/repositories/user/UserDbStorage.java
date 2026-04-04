@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.repositories;
+package ru.yandex.practicum.filmorate.dal.repositories.user;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;

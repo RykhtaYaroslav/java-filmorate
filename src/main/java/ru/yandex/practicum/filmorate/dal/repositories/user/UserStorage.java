@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.repositories;
+package ru.yandex.practicum.filmorate.dal.repositories.user;
 
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
