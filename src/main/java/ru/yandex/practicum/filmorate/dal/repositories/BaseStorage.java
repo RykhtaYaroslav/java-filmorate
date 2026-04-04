@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,7 +33,7 @@ public class BaseStorage<T> {
         }
     }
 
-    protected Set<T> findMany(String query, ResultSetExtractor<Set<T>> rs) {
+    protected List<T> findMany(String query, ResultSetExtractor<List<T>> rs) {
         return jdbc.query(query, rs);
     }
 
