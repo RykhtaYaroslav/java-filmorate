@@ -13,6 +13,6 @@ public class FilmDto {
     private LocalDate releaseDate;
     private Long duration;
     private Integer ratingId;
-    Set<Integer> genreIds;
+    private Set<Integer> genreIds;
     private Set<Long> userLikeIds;
 }

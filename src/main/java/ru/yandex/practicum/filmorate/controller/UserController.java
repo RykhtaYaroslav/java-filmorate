@@ -29,13 +29,11 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public UserDto findById(@PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Collection<UserDto> findAll() {
         return service.findAll();
     }
@@ -47,7 +45,6 @@ public class UserController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     public UserDto update(@Valid @RequestBody UserUpdateRequest userUpdateRequest) {
         return service.update(userUpdateRequest);
     }
@@ -59,13 +56,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    @ResponseStatus(HttpStatus.OK)
     public Friendship sendFriendshipRequest(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
         return service.sendFriendshipRequest(id, friendId);
     }
 
     @PutMapping("/{id}/friends/{friendId}/confirm")
-    @ResponseStatus(HttpStatus.OK)
     public Friendship confirmFriendship(@PathVariable @Positive Long id, @PathVariable @Positive Long friendId) {
         return service.confirmFriendship(id, friendId);
     }
@@ -77,13 +72,11 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    @ResponseStatus(HttpStatus.OK)
     public Collection<UserDto> getUserFriends(@PathVariable @Positive Long id) {
         return service.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    @ResponseStatus(HttpStatus.OK)
     public Collection<UserDto> getCommonFriends(@PathVariable @Positive Long id, @PathVariable @Positive Long otherId) {
         return service.getCommonFriends(id, otherId);
     }
