@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Component
@@ -18,7 +18,7 @@ public class UserExtractor implements ResultSetExtractor<Set<User>> {
 
     @Override
     public Set<User> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        final Set<User> users = new HashSet<>();
+        final Set<User> users = new LinkedHashSet<>();
 
         while (rs.next()) {
             User user = userRowMapper.mapRow(rs, rs.getRow());

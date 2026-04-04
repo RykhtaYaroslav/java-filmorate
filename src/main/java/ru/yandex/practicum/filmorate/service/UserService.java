@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class UserService {
         log.info("Возвращается коллекция всех пользователей");
 
         Collection<User> users = storage.getUsers();
-        return users.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
+        return users.stream().map(UserMapper::mapToUserDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public UserDto findById(Long id) {
