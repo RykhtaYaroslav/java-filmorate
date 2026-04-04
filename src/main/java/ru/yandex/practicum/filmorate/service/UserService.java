@@ -84,6 +84,9 @@ public class UserService {
             throw new DataConflictException("Нельзя добавить самого себя в друзья");
         }
 
+        checkUserExist(fromUserId);
+        checkUserExist(toUserId);
+
         Friendship friendship = storage.sendFriendshipRequest(new Friendship(fromUserId, toUserId));
 
         log.info("Пользователь id = {} отправил заявку в друзья пользователю id = {}", friendship.getFromUserId(), friendship.getToUserId());
@@ -92,7 +95,8 @@ public class UserService {
 
     public void deleteFriendship(Long userId, Long friendId) {
         log.debug("Пользователь id = {} хочет удалить из друзей пользователя id = {}", userId, friendId);
-
+        checkUserExist(userId);
+        checkUserExist(friendId);
         storage.deleteFriendship(new Friendship(userId, friendId));
 
         log.info("Пользователи id = {} и id = {} больше не друзья", userId, friendId);
@@ -116,5 +120,11 @@ public class UserService {
         Set<User> commonFriendsSet = storage.findCommonFriends(id, otherId);
 
         return commonFriendsSet.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
+    }
+
+    private void checkUserExist(Long id) {
+        if (storage.findById(id).isEmpty()) {
+            throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
+        }
     }
 }
