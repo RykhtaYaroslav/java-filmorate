@@ -1,16 +1,15 @@
 package ru.yandex.practicum.filmorate.dto.mappers;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import ru.yandex.practicum.filmorate.dto.user.UserCreateRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserUpdateRequest;
 import ru.yandex.practicum.filmorate.model.User;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public final class UserMapper {
 
-    public static User mapToUser(UserCreateRequest request) {
+    public User mapToUser(UserCreateRequest request) {
         return User.builder()
                 .email(request.getEmail())
                 .login(request.getLogin())
@@ -19,7 +18,7 @@ public final class UserMapper {
                 .build();
     }
 
-    public static User mapToUser(UserUpdateRequest request) {
+    public User mapToUser(UserUpdateRequest request) {
         return User.builder()
                 .id(request.getId())
                 .email(request.getEmail())
@@ -29,7 +28,7 @@ public final class UserMapper {
                 .build();
     }
 
-    public static UserDto mapToUserDto(User user) {
+    public UserDto mapToUserDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
