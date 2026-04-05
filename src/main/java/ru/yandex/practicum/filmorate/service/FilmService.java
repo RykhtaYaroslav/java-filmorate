@@ -7,13 +7,15 @@ import ru.yandex.practicum.filmorate.dal.repositories.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dto.film.FilmCreateRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.FilmUpdateRequest;
-import ru.yandex.practicum.filmorate.dto.genre.GenreRequest;
 import ru.yandex.practicum.filmorate.dto.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,17 +109,18 @@ public class FilmService {
 
     private void validateFilm(FilmCreateRequest filmCreateRequest) {
         int mpaId = filmCreateRequest.getMpa().getId();
-        List<GenreRequest> genres = filmCreateRequest.getGenres();
 
         if (mpaId > MPA_RATINGS_AMOUNT || mpaId < 1) {
             throw new NotFoundException(String.format("Возрастной рейтинг с id = %d не найден ", mpaId));
         }
 
-        genres.stream()
-                .filter(g -> g.getId() > GENRES_AMOUNT || g.getId() < 1)
-                .findFirst()
-                .ifPresent(genre -> {
-                    throw new NotFoundException(String.format("Жанр с id = %d не найден", genre.getId()));
-                });
+        if (filmCreateRequest.getGenres() != null) {
+            filmCreateRequest.getGenres().stream()
+                    .filter(g -> g.getId() > GENRES_AMOUNT || g.getId() < 1)
+                    .findFirst()
+                    .ifPresent(genre -> {
+                        throw new NotFoundException(String.format("Жанр с id = %d не найден", genre.getId()));
+                    });
+        }
     }
 }
