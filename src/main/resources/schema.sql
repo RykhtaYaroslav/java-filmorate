@@ -1,3 +1,12 @@
+DROP TABLE IF EXISTS film_genres CASCADE;
+DROP TABLE IF EXISTS film_likes CASCADE;
+DROP TABLE IF EXISTS user_friends CASCADE;
+
+DROP TABLE IF EXISTS films CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS genres CASCADE;
+DROP TABLE IF EXISTS mpa_ratings CASCADE;
+
 CREATE TABLE IF NOT EXISTS mpa_ratings (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(10) NOT NULL  -- G, PG, PG-13, R, NC-17
@@ -9,7 +18,7 @@ CREATE TABLE IF NOT EXISTS films (
     description  VARCHAR(200),
     release_date DATE NOT NULL,
     duration     INT NOT NULL,
-    rating_id    BIGINT NOT NULL CHECK (rating_id BETWEEN 1 AND 5),
+    rating_id    BIGINT,
     FOREIGN KEY (rating_id) REFERENCES mpa_ratings(id)
 );
 

@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +25,7 @@ public class MpaRatingController {
     }
 
     @GetMapping("/{id}")
-    public MpaRatingDto findById(@PathVariable
-                                 @Min(value = 1, message = "id может быть от 1 до " + RATINGS_AMOUNT)
-                                 @Max(value = RATINGS_AMOUNT, message = "id может быть от 1 до " + RATINGS_AMOUNT)
-                                 int id) {
+    public MpaRatingDto findById(@PathVariable int id) {
         return service.findById(id);
     }
 }

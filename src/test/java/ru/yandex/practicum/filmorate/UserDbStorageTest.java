@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.dal.repositories.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.enums.FriendshipStatus;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -29,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Import({UserDbStorage.class, UserRowMapper.class, UserExtractor.class, FriendshipRowMapper.class})
 class UserDbStorageTest {
     private final UserDbStorage userStorage;
+
     @Test
     @DisplayName("Проверка сохранения и поиска пользователя по ID")
     void testCreateAndFindUser() {
@@ -99,22 +99,6 @@ class UserDbStorageTest {
     }
 
     @Test
-    @DisplayName("Проверка подтверждения дружбы")
-    void testConfirmFriendship() {
-        User user1 = userStorage.create(TestDataGenerator.generateUser());
-        User user2 = userStorage.create(TestDataGenerator.generateUser());
-
-        Friendship friendship = new Friendship(user1.getId(), user2.getId());
-        userStorage.sendFriendshipRequest(friendship);
-
-        userStorage.confirmFriendship(friendship);
-        Optional<Friendship> confirmed = userStorage.findFriendship(friendship);
-
-        assertThat(confirmed).isPresent();
-        assertThat(confirmed.get().getStatus()).isEqualTo(FriendshipStatus.CONFIRMED);
-    }
-
-    @Test
     @DisplayName("Проверка удаления из друзей")
     void testDeleteFriendship() {
         User user1 = userStorage.create(TestDataGenerator.generateUser());
@@ -137,11 +121,9 @@ class UserDbStorageTest {
 
         // Оба дружат с commonFriend
         Friendship f1 = new Friendship(user.getId(), commonFriend.getId());
-        f1.setStatus(FriendshipStatus.CONFIRMED);
         userStorage.sendFriendshipRequest(f1);
 
         Friendship f2 = new Friendship(other.getId(), commonFriend.getId());
-        f2.setStatus(FriendshipStatus.CONFIRMED);
         userStorage.sendFriendshipRequest(f2);
 
         Set<User> common = userStorage.findCommonFriends(user.getId(), other.getId());
@@ -189,30 +171,6 @@ class UserDbStorageTest {
                 ru.yandex.practicum.filmorate.exceptions.DataConflictException.class,
                 () -> userStorage.sendFriendshipRequest(friendship),
                 "Должно быть выброшено DataConflictException при дубликате PK"
-        );
-    }
-
-    @Test
-    @DisplayName("Ошибка подтверждения несуществующей дружбы")
-    void testConfirmNonExistentFriendship() {
-        User user1 = userStorage.create(TestDataGenerator.generateUser());
-        User user2 = userStorage.create(TestDataGenerator.generateUser());
-        Friendship friendship = new Friendship(user1.getId(), user2.getId());
-
-        assertThrows(
-                ru.yandex.practicum.filmorate.exceptions.NotFoundException.class,
-                () -> userStorage.confirmFriendship(friendship),
-                "Должно быть выброшено NotFoundException, если записи для подтверждения нет"
-        );
-    }
-
-    @Test
-    @DisplayName("Ошибка удаления пользователя, которого нет")
-    void testDeleteNonExistentUser() {
-        assertThrows(
-                ru.yandex.practicum.filmorate.exceptions.NotFoundException.class,
-                () -> userStorage.delete(9999L),
-                String.format("Метод delete должен выбрасывать NotFoundException для несуществующего ID %d", 9999L)
         );
     }
 

@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.dto.film;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.MinimumDate;
+import ru.yandex.practicum.filmorate.dto.genre.GenreRequest;
+import ru.yandex.practicum.filmorate.dto.mpa.MpaRatingRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,11 +26,7 @@ public class FilmCreateRequest {
     @Positive(message = "Длительность должна быть положительной")
     private Long duration;
 
-    @NotNull(message = "Возрастной рейтинг должен быть указан")
-    @Min(message = "Неверно указан id возрастного рейтинга", value = 1L)
-    @Max(message = "Неверно указан id возрастного рейтинга", value = 5L)
-    private Integer ratingId;
+    private MpaRatingRequest mpa;
 
-    @NotEmpty(message = "Жанры фильма должны быть указаны")
-    List<@NotNull @Positive Integer> genreIds;
+    private List<GenreRequest> genres;
 }

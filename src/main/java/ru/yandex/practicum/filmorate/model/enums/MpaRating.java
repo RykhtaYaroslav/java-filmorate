@@ -30,4 +30,9 @@ public enum MpaRating {
         String normalized = value.trim().toUpperCase().replace("-", "_");
         return MpaRating.valueOf(normalized);
     }
+
+    @Override
+    public String toString() {
+        return this.name().replace("_", "-");
+    }
 }

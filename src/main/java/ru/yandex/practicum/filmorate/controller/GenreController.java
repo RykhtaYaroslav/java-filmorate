@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +25,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public GenreDto findById(@PathVariable
-                             @Min(value = 1, message = "id может быть от 1 до " + GENRES_AMOUNT)
-                             @Max(value = GENRES_AMOUNT, message = "id может быть от 1 до " + GENRES_AMOUNT)
-                             int id) {
+    public GenreDto findById(@PathVariable int id) {
         return service.findById(id);
     }
 }

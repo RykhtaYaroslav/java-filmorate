@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

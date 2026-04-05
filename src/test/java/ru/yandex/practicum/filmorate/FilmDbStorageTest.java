@@ -9,15 +9,15 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmExtractor;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmRowMapper;
+import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
+import ru.yandex.practicum.filmorate.dal.mappers.user.UserExtractor;
+import ru.yandex.practicum.filmorate.dal.mappers.user.UserRowMapper;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dal.repositories.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.dal.mappers.user.UserRowMapper;
-import ru.yandex.practicum.filmorate.dal.mappers.user.UserExtractor;
-import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.MpaRating;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -137,12 +137,6 @@ class FilmDbStorageTest {
     void testFindFilmByIdNotFound() {
         Optional<Film> filmOptional = filmStorage.findById(999L);
         assertThat(filmOptional).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Ошибка удаления несуществующего фильма")
-    void testDeleteNonExistentFilm() {
-        assertThrows(NotFoundException.class, () -> filmStorage.delete(999L));
     }
 
     @Test

@@ -7,14 +7,13 @@ import ru.yandex.practicum.filmorate.dal.repositories.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dto.film.FilmCreateRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.FilmUpdateRequest;
+import ru.yandex.practicum.filmorate.dto.genre.GenreRequest;
 import ru.yandex.practicum.filmorate.dto.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,8 +22,12 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage storage;
 
+    private static final int MPA_RATINGS_AMOUNT = 5;
+    private static final int GENRES_AMOUNT = 20;
+
     public FilmDto create(FilmCreateRequest filmCreateRequest) {
         log.debug("Создание фильма: {}", filmCreateRequest);
+        validateFilm(filmCreateRequest);
 
         Film film = storage.create(FilmMapper.mapToFilm(filmCreateRequest));
 
@@ -54,7 +57,7 @@ public class FilmService {
         Set<Film> filmSet = storage.getFilms();
         return filmSet.stream()
                 .map(FilmMapper::mapToFilmDto)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public FilmDto findById(Long id) {
@@ -99,6 +102,22 @@ public class FilmService {
     public Collection<FilmDto> getPopularFilms(int count) {
         Collection<Film> filmSet = storage.getPopularFilms(count);
 
-        return  filmSet.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toSet());
+        return filmSet.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private void validateFilm(FilmCreateRequest filmCreateRequest) {
+        int mpaId = filmCreateRequest.getMpa().getId();
+        List<GenreRequest> genres = filmCreateRequest.getGenres();
+
+        if (mpaId > MPA_RATINGS_AMOUNT || mpaId < 1) {
+            throw new NotFoundException(String.format("Возрастной рейтинг с id = %d не найден ", mpaId));
+        }
+
+        genres.stream()
+                .filter(g -> g.getId() > GENRES_AMOUNT || g.getId() < 1)
+                .findFirst()
+                .ifPresent(genre -> {
+                    throw new NotFoundException(String.format("Жанр с id = %d не найден", genre.getId()));
+                });
     }
 }
