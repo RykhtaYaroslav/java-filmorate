@@ -4,7 +4,7 @@ Template repository for Filmorate project.
 
 ## Database schema
 
-![ER diagram](https://github.com/RykhtaYaroslav/java-filmorate/blob/main/Database%20ER%20diagram.png)
+![ER diagram](https://github.com/RykhtaYaroslav/java-filmorate/blob/main/Database%20ER%20diagram..jpg)
 
 The schema includes the following tables:
 - **films** — film data with a reference to MPA rating
