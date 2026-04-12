@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dal.mappers.film.GenreBatchSetter;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor

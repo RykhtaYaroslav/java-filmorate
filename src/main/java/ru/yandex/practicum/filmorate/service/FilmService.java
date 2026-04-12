@@ -58,11 +58,14 @@ public class FilmService {
 
     public Collection<FilmDto> findAll() {
         log.debug("Запрос на получение всех фильмов");
+
         Set<Film> filmSet = filmStorage.getFilms();
+
         if (filmSet.isEmpty()) {
             log.info("Список фильмов пуст");
             return Collections.emptyList();
         }
+
         Map<Long, Set<Genre>> genres = filmGenreRepository.getGenres();
         Map<Long, Set<Long>> likes = likeRepository.getLikes();
 
