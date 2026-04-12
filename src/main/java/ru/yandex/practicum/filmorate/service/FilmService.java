@@ -30,35 +30,39 @@ public class FilmService {
     private static final int GENRES_AMOUNT = 6;
 
     public FilmDto create(FilmCreateRequest filmCreateRequest) {
-        log.debug("Создание фильма: {}", filmCreateRequest);
+        log.debug("Запрос на создание фильма: {}", filmCreateRequest);
         validateFilm(filmCreateRequest);
 
         Film film = filmStorage.create(FilmMapper.mapToFilm(filmCreateRequest));
 
-        log.info("Фильм создан с id = {}", film.getId());
-        return FilmMapper.mapToFilmDto(film);
+        log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
+        return findById(film.getId());
     }
 
     public FilmDto update(FilmUpdateRequest filmUpdateRequest) {
-        log.debug("Обновление фильма id = {}", filmUpdateRequest.getId());
+        log.debug("Запрос на обновление фильма id={}", filmUpdateRequest.getId());
 
         Film film = filmStorage.update(FilmMapper.mapToFilm(filmUpdateRequest));
 
-        log.info("Данные фильма id = {} обновлены", filmUpdateRequest.getId());
-        return FilmMapper.mapToFilmDto(film);
+        log.info("Данные фильма id={} успешно обновлены", film.getId());
+        return findById(film.getId());
     }
 
     public void delete(Long id) {
-        log.debug("Удаляется фильм с id = {} ", id);
+        log.debug("Запрос на удаление фильма id={}", id);
 
         filmStorage.delete(id);
 
-        log.info("Фильм с id = {} удалён", id);
+        log.info("Фильм id={} успешно удалён", id);
     }
 
     public Collection<FilmDto> findAll() {
-        log.info("Возвращается коллекция всех фильмов");
+        log.debug("Запрос на получение всех фильмов");
         Set<Film> filmSet = filmStorage.getFilms();
+        if (filmSet.isEmpty()) {
+            log.info("Список фильмов пуст");
+            return Collections.emptyList();
+        }
         Map<Long, Set<Genre>> genres = filmGenreRepository.getGenres();
         Map<Long, Set<Long>> likes = likeRepository.getLikes();
 
@@ -67,61 +71,61 @@ public class FilmService {
             film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
         });
 
+        log.info("Возвращено {} фильмов", filmSet.size());
         return filmSet.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public FilmDto findById(Long id) {
-        log.debug("Выполняется поиск фильма по id = {}", id);
+        log.debug("Запрос на поиск фильма по id={}", id);
         if (id == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
+            throw new ConditionsNotMetException("Id не может быть null");
         }
 
         Optional<Film> optionalFilm = filmStorage.findById(id);
 
         if (optionalFilm.isEmpty()) {
+            log.warn("Фильм с id={} не найден", id);
             throw new NotFoundException("Фильм с id = " + id + " не найден");
         }
         Film film = optionalFilm.get();
         film.setGenres(filmGenreRepository.getGenres(id));
         film.setUserLikeIds(likeRepository.getLikes(id));
 
-        log.debug("Найден фильм с id = {}", id);
+        log.debug("Найден фильм: {}", film);
         return FilmMapper.mapToFilmDto(film);
     }
 
     public FilmDto addLike(Long filmId, Long userId) {
-        log.debug("Пользователь id = {} хочет поставить лайк фильму id = {}", userId, filmId);
+        log.debug("Запрос от пользователя id={} на добавление лайка фильму id={}", userId, filmId);
+
+        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
 
         likeRepository.addLike(filmId, userId);
-        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
+
         film.setUserLikeIds(likeRepository.getLikes(filmId));
         film.setGenres(filmGenreRepository.getGenres(filmId));
 
-        FilmDto dto = FilmMapper.mapToFilmDto(film);
-
-        log.info("Пользователь id = {} поставил лайк фильму id = {}", userId, filmId);
-        return dto;
+        log.info("Пользователь id={} успешно поставил лайк фильму id={}", userId, filmId);
+        return findById(filmId);
     }
 
     public FilmDto deleteLike(Long filmId, Long userId) {
-        log.debug("Пользователь id = {} хочет убрать лайк с фильма id = {}", userId, filmId);
+        log.debug("Запрос от пользователя id={} на удаление лайка с фильма id={}", userId, filmId);
 
         likeRepository.deleteLike(filmId, userId);
-
-        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
-        film.setUserLikeIds(likeRepository.getLikes(filmId));
-        film.setGenres(filmGenreRepository.getGenres(filmId));
-
-        FilmDto dto = FilmMapper.mapToFilmDto(film);
-
-        log.info("Пользователь id = {} убрал лайк с фильма id = {}", userId, filmId);
-        return dto;
+        log.info("Пользователь id={} успешно удалил лайк с фильма id={}", userId, filmId);
+        return findById(filmId);
     }
 
     public Collection<FilmDto> getPopularFilms(int count) {
+        log.debug("Запрос на получение {} самых популярных фильмов", count);
         Collection<Film> filmSet = filmStorage.getPopularFilms(count);
+        if (filmSet.isEmpty()) {
+            log.info("Список популярных фильмов пуст");
+            return Collections.emptyList();
+        }
         Map<Long, Set<Genre>> genres = filmGenreRepository.getGenres();
         Map<Long, Set<Long>> likes = likeRepository.getLikes();
 
@@ -130,13 +134,16 @@ public class FilmService {
             film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
         });
 
+        log.info("Возвращено {} популярных фильмов", filmSet.size());
         return filmSet.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private void validateFilm(FilmCreateRequest filmCreateRequest) {
+        log.debug("Валидация фильма: {}", filmCreateRequest.getName());
         int mpaId = filmCreateRequest.getMpa().getId();
 
         if (mpaId > MPA_RATINGS_AMOUNT || mpaId < 1) {
+            log.warn("Попытка создать фильм с несуществующим mpa id={}", mpaId);
             throw new NotFoundException(String.format("Возрастной рейтинг с id = %d не найден ", mpaId));
         }
 
@@ -145,8 +152,10 @@ public class FilmService {
                     .filter(g -> g.getId() > GENRES_AMOUNT || g.getId() < 1)
                     .findFirst()
                     .ifPresent(genre -> {
+                        log.warn("Попытка создать фильм с несуществующим жанром id={}", genre.getId());
                         throw new NotFoundException(String.format("Жанр с id = %d не найден", genre.getId()));
                     });
         }
+        log.debug("Валидация фильма {} прошла успешно", filmCreateRequest.getName());
     }
 }

@@ -21,31 +21,28 @@ public class ErrorHandler {
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequest(Exception e) {
-        log.warn("Ошибка валидации или запроса: {}", e.getMessage());
-        return new ErrorResponse("Ошибка в параметрах запроса", e.getMessage());
+        log.warn("Получен запрос с некорректными данными: {}", e.getMessage());
+        return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(NotFoundException e) {
-        log.warn("Объект не найден: {}", e.getMessage());
-        return new ErrorResponse("Искомый объект не найден", e.getMessage());
+        log.warn("Искомый объект не найден: {}", e.getMessage());
+        return new ErrorResponse("Объект не найден", e.getMessage());
     }
 
     @ExceptionHandler(DataConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflict(DataConflictException e) {
         log.warn("Конфликт данных: {}", e.getMessage());
-        return new ErrorResponse("Конфликт при сохранении данных", e.getMessage());
+        return new ErrorResponse("Конфликт данных", e.getMessage());
     }
 
-    @ExceptionHandler({
-            DatabaseException.class,
-            Throwable.class
-    })
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleServerError(Throwable e) {
-        log.error("Критическая ошибка: ", e);
-        return new ErrorResponse("Произошла внутренняя ошибка сервера", e.getMessage());
+        log.error("Внутренняя ошибка сервера: ", e);
+        return new ErrorResponse("Внутренняя ошибка", e.getMessage());
     }
 }

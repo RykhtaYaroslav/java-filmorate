@@ -26,60 +26,65 @@ public class UserService {
     private final FriendshipRepository friendshipRepository;
 
     public UserDto create(UserCreateRequest userCreateRequest) {
-        log.debug("Создание пользователя: {}", userCreateRequest);
+        log.debug("Запрос на создание пользователя: {}", userCreateRequest);
 
         User user = userStorage.create(UserMapper.mapToUser(userCreateRequest));
 
-        log.info("Пользователь создан с id = {}", user.getId());
+        log.info("Пользователь {} (id={}) успешно создан", user.getLogin(), user.getId());
         return UserMapper.mapToUserDto(user);
     }
 
     public UserDto update(UserUpdateRequest userUpdateRequest) {
-        log.debug("Обновление пользователя: {}", userUpdateRequest.getId());
+        log.debug("Запрос на обновление пользователя id={}", userUpdateRequest.getId());
 
         User user = userStorage.update(UserMapper.mapToUser(userUpdateRequest));
 
-        log.info("Данные пользователя с id = {} обновлены", user.getId());
+        log.info("Данные пользователя id={} успешно обновлены", user.getId());
         return UserMapper.mapToUserDto(user);
     }
 
     public void delete(Long id) {
-        log.debug("Удаляется пользователь с id = {}", id);
+        log.debug("Запрос на удаление пользователя id={}", id);
 
         userStorage.delete(id);
 
-        log.info("Пользователь с id = {} удалён", id);
+        log.info("Пользователь id={} успешно удалён", id);
     }
 
     public Collection<UserDto> findAll() {
-        log.info("Возвращается коллекция всех пользователей");
-
+        log.debug("Запрос на получение всех пользователей");
         Collection<User> users = userStorage.getUsers();
+        if (users.isEmpty()) {
+            log.info("Список пользователей пуст");
+            return Collections.emptyList();
+        }
+        log.info("Возвращено {} пользователей", users.size());
         return users.stream().map(UserMapper::mapToUserDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public UserDto findById(Long id) {
-        log.debug("Выполняется поиск пользователя по id = {}", id);
+        log.debug("Запрос на поиск пользователя по id={}", id);
         if (id == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
+            throw new ConditionsNotMetException("Id не может быть null");
         }
 
         Optional<User> optionalUser = userStorage.findById(id);
 
         if (optionalUser.isEmpty()) {
+            log.warn("Пользователь с id={} не найден", id);
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
         }
 
         User user = optionalUser.get();
-
-        log.debug("Найден пользователь с id = {}", user.getId());
+        log.debug("Найден пользователь: {}", user);
         return UserMapper.mapToUserDto(user);
     }
 
     public Friendship sendFriendshipRequest(Long fromUserId, Long toUserId) {
-        log.debug("Пользователь id = {} отправляет заявку в друзья пользователю id = {}", fromUserId, toUserId);
+        log.debug("Запрос на добавление в друзья от id={} к id={}", fromUserId, toUserId);
 
         if (fromUserId.equals(toUserId)) {
+            log.warn("Попытка добавить самого себя в друзья (id={})", fromUserId);
             throw new DataConflictException("Нельзя добавить самого себя в друзья");
         }
 
@@ -88,37 +93,44 @@ public class UserService {
 
         Friendship friendship = friendshipRepository.sendFriendshipRequest(new Friendship(fromUserId, toUserId));
 
-        log.info("Пользователь id = {} отправил заявку в друзья пользователю id = {}", friendship.getFromUserId(), friendship.getToUserId());
+        log.info("Пользователь id={} успешно отправил заявку в друзья пользователю id={}", fromUserId, toUserId);
         return friendship;
     }
 
     public void deleteFriendship(Long userId, Long friendId) {
-        log.debug("Пользователь id = {} хочет удалить из друзей пользователя id = {}", userId, friendId);
+        log.debug("Запрос на удаление из друзей от id={} к id={}", userId, friendId);
         checkUserExist(userId);
         checkUserExist(friendId);
         friendshipRepository.deleteFriendship(new Friendship(userId, friendId));
 
-        log.info("Пользователи id = {} и id = {} больше не друзья", userId, friendId);
+        log.info("Пользователь id={} успешно удалил из друзей пользователя id={}", userId, friendId);
     }
 
     public Collection<UserDto> getUserFriends(Long id) {
-        log.debug("Поиск друзей пользователя id = {}", id);
+        log.debug("Запрос на получение друзей пользователя id={}", id);
+        checkUserExist(id);
 
-        if (userStorage.findById(id).isEmpty()) {
-            throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
-        }
         Set<Long> friendIds = friendshipRepository.getFriends(id);
+        if (friendIds.isEmpty()) {
+            log.info("У пользователя id={} нет друзей", id);
+            return Collections.emptyList();
+        }
+
         Set<User> friendUsers = friendIds.stream()
                 .map(userStorage::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
+        log.info("У пользователя id={} найдено {} друзей", id, friendUsers.size());
         return friendUsers.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
     }
 
     public Collection<UserDto> getCommonFriends(Long id, Long otherId) {
-        log.debug("Поиск общих друзей пользователей id = {} и id = {}", id, otherId);
+        log.debug("Запрос на получение общих друзей для пользователей id={} и id={}", id, otherId);
+        checkUserExist(id);
+        checkUserExist(otherId);
+
         Set<Long> idFriends = friendshipRepository.getFriends(id);
         Set<Long> otherIdFriends = friendshipRepository.getFriends(otherId);
 
@@ -126,17 +138,25 @@ public class UserService {
                 .filter(otherIdFriends::contains)
                 .collect(Collectors.toSet());
 
+        if (commonFriendIds.isEmpty()) {
+            log.info("У пользователей id={} и id={} нет общих друзей", id, otherId);
+            return Collections.emptyList();
+        }
+
         Set<User> commonFriends = commonFriendIds.stream()
                 .map(userStorage::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
+        log.info("Найдено {} общих друзей для пользователей id={} и id={}", commonFriends.size(), id, otherId);
         return commonFriends.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
     }
 
     private void checkUserExist(Long id) {
+        log.debug("Проверка существования пользователя с id={}", id);
         if (userStorage.findById(id).isEmpty()) {
+            log.warn("Пользователь с id={} не найден в хранилище", id);
             throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
         }
     }

@@ -77,8 +77,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         if (film.getGenres() != null) {
             filmGenreRepository.addGenres(id, film.getGenres());
         }
-        return findById(film.getId()).orElseThrow(() ->
-                new IllegalStateException("Фильм был добавлен, но не найден. Этого не должно было случиться."));
+        return film;
     }
 
     @Override
@@ -97,9 +96,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 filmGenreRepository.addGenres(film.getId(), film.getGenres());
             }
         }
-
-        return findById(film.getId()).orElseThrow(() ->
-                new IllegalStateException("Фильм был обновлен, но не найден. Этого не должно было случиться."));
+        return film;
     }
 
     @Override
