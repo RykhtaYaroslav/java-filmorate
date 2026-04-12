@@ -4,27 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum Genre {
-    // Стандарт (1-6)
     COMEDY(1, "Комедия"),
     DRAMA(2, "Драма"),
     CARTOON(3, "Мультфильм"),
     THRILLER(4, "Триллер"),
     DOCUMENTARY(5, "Документальный"),
-    ACTION(6, "Боевик"),
-    ROMANCE(7, "Мелодрама"),
-    HORROR(8, "Ужасы"),
-    SCI_FI(9, "Фантастика"),
-    FANTASY(10, "Фэнтези"),
-    ADVENTURE(11, "Приключения"),
-    CRIME(12, "Криминал"),
-    MYSTERY(13, "Детектив"),
-    BIOGRAPHY(14, "Биография"),
-    HISTORY(15, "История"),
-    MUSICAL(16, "Мюзикл"),
-    WESTERN(17, "Вестерн"),
-    SPORT(18, "Спорт"),
-    WAR(19, "Военный"),
-    FAMILY(20, "Семейный");
+    ACTION(6, "Боевик");
 
     private final int id;
     private final String name;
