@@ -1,16 +1,12 @@
 package ru.yandex.practicum.filmorate.dal.repositories.user;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -23,7 +19,6 @@ import java.util.stream.Collectors;
 @Repository
 public class UserDbStorage extends BaseStorage<User> implements UserStorage {
     private final ResultSetExtractor<Set<User>> extractor;
-    private final FriendshipRowMapper friendshipRowMapper;
 
     private static final String CREATE_USER_QUERY = """
             INSERT INTO users (email, login, name, birthday)
@@ -53,21 +48,6 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             WHERE id = ?
             """;
 
-    private static final String SEND_FRIENDSHIP_REQUEST = """
-            INSERT INTO user_friends (user_id, friend_id)
-            VALUES(?, ?)""";
-
-    private static final String DELETE_FRIENDSHIP_QUERY = """
-            DELETE FROM user_friends
-            WHERE user_id = ? AND friend_id = ?
-            """;
-
-    private static final String FIND_FRIENDSHIP_QUERY = """
-            SELECT *
-            FROM user_friends
-            WHERE user_id = ? AND friend_id = ?
-            """;
-
     private static final String FIND_USER_FRIENDS_QUERY = """
             SELECT u.*
             FROM users u
@@ -75,10 +55,9 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             WHERE f.user_id = ?
             """;
 
-    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper, ResultSetExtractor<Set<User>> extractor, FriendshipRowMapper friendshipRowMapper) {
+    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper, ResultSetExtractor<Set<User>> extractor) {
         super(jdbc, mapper);
         this.extractor = extractor;
-        this.friendshipRowMapper = friendshipRowMapper;
     }
 
     @Override
@@ -137,40 +116,17 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
 
     @Override
     public Friendship sendFriendshipRequest(Friendship friendship) {
-        try {
-            jdbc.update(SEND_FRIENDSHIP_REQUEST, friendship.getFromUserId(), friendship.getToUserId());
-
-        } catch (DuplicateKeyException e) {
-            throw new DataConflictException(
-                    String.format("Запрос на дружбу между %d и %d уже существует",
-                            friendship.getFromUserId(), friendship.getToUserId())
-            );
-        } catch (DataIntegrityViolationException e) {
-            throw new NotFoundException(
-                    String.format("Один из пользователей (ID: %d или %d) не найден в базе",
-                            friendship.getFromUserId(), friendship.getToUserId())
-            );
-        }
-        return findFriendship(friendship).orElseThrow(() ->
-                new IllegalStateException("Данные сохранены, но не найдены. Этого не должно было случиться."));
+        throw new UnsupportedOperationException("Этот метод должен быть реализован в сервисном слое");
     }
 
     @Override
     public void deleteFriendship(Friendship friendship) {
-        delete(DELETE_FRIENDSHIP_QUERY, friendship.getFromUserId(), friendship.getToUserId());
+        throw new UnsupportedOperationException("Этот метод должен быть реализован в сервисном слое");
     }
 
     @Override
     public Optional<Friendship> findFriendship(Friendship friendship) {
-        try {
-            Long userId = friendship.getFromUserId();
-            Long friendId = friendship.getToUserId();
-            Friendship result = jdbc.queryForObject(FIND_FRIENDSHIP_QUERY, friendshipRowMapper,
-                    userId, friendId);
-            return Optional.ofNullable(result);
-        } catch (DataAccessException e) {
-            return Optional.empty();
-        }
+        throw new UnsupportedOperationException("Этот метод должен быть реализован в сервисном слое");
     }
 
     @Override

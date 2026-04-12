@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repositories.friendship.FriendshipRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.dto.user.UserCreateRequest;
@@ -14,22 +15,20 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage storage;
+    private final UserStorage userStorage;
+    private final FriendshipRepository friendshipRepository;
 
     public UserDto create(UserCreateRequest userCreateRequest) {
         log.debug("Создание пользователя: {}", userCreateRequest);
 
-        User user = storage.create(UserMapper.mapToUser(userCreateRequest));
+        User user = userStorage.create(UserMapper.mapToUser(userCreateRequest));
 
         log.info("Пользователь создан с id = {}", user.getId());
         return UserMapper.mapToUserDto(user);
@@ -38,7 +37,7 @@ public class UserService {
     public UserDto update(UserUpdateRequest userUpdateRequest) {
         log.debug("Обновление пользователя: {}", userUpdateRequest.getId());
 
-        User user = storage.update(UserMapper.mapToUser(userUpdateRequest));
+        User user = userStorage.update(UserMapper.mapToUser(userUpdateRequest));
 
         log.info("Данные пользователя с id = {} обновлены", user.getId());
         return UserMapper.mapToUserDto(user);
@@ -47,7 +46,7 @@ public class UserService {
     public void delete(Long id) {
         log.debug("Удаляется пользователь с id = {}", id);
 
-        storage.delete(id);
+        userStorage.delete(id);
 
         log.info("Пользователь с id = {} удалён", id);
     }
@@ -55,7 +54,7 @@ public class UserService {
     public Collection<UserDto> findAll() {
         log.info("Возвращается коллекция всех пользователей");
 
-        Collection<User> users = storage.getUsers();
+        Collection<User> users = userStorage.getUsers();
         return users.stream().map(UserMapper::mapToUserDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -65,7 +64,7 @@ public class UserService {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
 
-        Optional<User> optionalUser = storage.findById(id);
+        Optional<User> optionalUser = userStorage.findById(id);
 
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
@@ -87,7 +86,7 @@ public class UserService {
         checkUserExist(fromUserId);
         checkUserExist(toUserId);
 
-        Friendship friendship = storage.sendFriendshipRequest(new Friendship(fromUserId, toUserId));
+        Friendship friendship = friendshipRepository.sendFriendshipRequest(new Friendship(fromUserId, toUserId));
 
         log.info("Пользователь id = {} отправил заявку в друзья пользователю id = {}", friendship.getFromUserId(), friendship.getToUserId());
         return friendship;
@@ -97,7 +96,7 @@ public class UserService {
         log.debug("Пользователь id = {} хочет удалить из друзей пользователя id = {}", userId, friendId);
         checkUserExist(userId);
         checkUserExist(friendId);
-        storage.deleteFriendship(new Friendship(userId, friendId));
+        friendshipRepository.deleteFriendship(new Friendship(userId, friendId));
 
         log.info("Пользователи id = {} и id = {} больше не друзья", userId, friendId);
     }
@@ -105,25 +104,39 @@ public class UserService {
     public Collection<UserDto> getUserFriends(Long id) {
         log.debug("Поиск друзей пользователя id = {}", id);
 
-        if (storage.findById(id).isEmpty()) {
+        if (userStorage.findById(id).isEmpty()) {
             throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
         }
+        Set<Long> friendIds = friendshipRepository.getFriends(id);
+        Set<User> friendUsers = friendIds.stream()
+                .map(userStorage::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
 
-        Set<User> friends = storage.getUserFriends(id);
-
-        return friends.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
+        return friendUsers.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
     }
 
     public Collection<UserDto> getCommonFriends(Long id, Long otherId) {
         log.debug("Поиск общих друзей пользователей id = {} и id = {}", id, otherId);
+        Set<Long> idFriends = friendshipRepository.getFriends(id);
+        Set<Long> otherIdFriends = friendshipRepository.getFriends(otherId);
 
-        Set<User> commonFriendsSet = storage.findCommonFriends(id, otherId);
+        Set<Long> commonFriendIds = idFriends.stream()
+                .filter(otherIdFriends::contains)
+                .collect(Collectors.toSet());
 
-        return commonFriendsSet.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
+        Set<User> commonFriends = commonFriendIds.stream()
+                .map(userStorage::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        return commonFriends.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
     }
 
     private void checkUserExist(Long id) {
-        if (storage.findById(id).isEmpty()) {
+        if (userStorage.findById(id).isEmpty()) {
             throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
         }
     }
