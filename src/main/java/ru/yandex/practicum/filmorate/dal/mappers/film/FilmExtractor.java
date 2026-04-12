@@ -5,7 +5,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.enums.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,16 +30,6 @@ public class FilmExtractor implements ResultSetExtractor<Set<Film>> {
             if (film == null) {
                 film = filmMapper.mapRow(rs, rs.getRow());
                 films.put(id, film);
-            }
-
-            int genreId = rs.getInt("genre_id");
-            if (!rs.wasNull() && genreId != 0) {
-                film.getGenres().add(Genre.fromId(genreId));
-            }
-
-            long userId = rs.getLong("user_id");
-            if (!rs.wasNull() && userId != 0) {
-                film.getUserLikeIds().add(userId);
             }
         }
         return new LinkedHashSet<>(films.values());

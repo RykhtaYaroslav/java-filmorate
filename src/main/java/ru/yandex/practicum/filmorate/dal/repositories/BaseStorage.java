@@ -40,10 +40,6 @@ public class BaseStorage<T> {
         return jdbc.query(query, rs, params);
     }
 
-    protected void delete(String query, long id) {
-        jdbc.update(query, id);
-    }
-
     protected void delete(String query, Object... params) {
         jdbc.update(query, params);
     }
