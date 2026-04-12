@@ -77,7 +77,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         if (film.getGenres() != null) {
             filmGenreRepository.addGenres(id, film.getGenres());
         }
-        return film;
+        return findById(film.getId()).orElseThrow(() ->
+                new IllegalStateException("Фильм был добавлен, но не найден. Этого не должно было случиться."));
     }
 
     @Override
