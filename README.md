@@ -1,75 +1,83 @@
-# java-filmorate
+# Filmorate: Social Platform for Film Lovers
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
-![DB](https://img.shields.io/badge/database-H2-blue.svg?style=for-the-badge)
-![Database ER Diagram](database_er_diagram.png)
+Filmorate is a social platform designed for film enthusiasts to share their favorite movies, leave reviews, and connect with friends. The application provides a RESTful API to manage a collection of films and users, allowing for operations like adding friends, liking films, and retrieving lists of the most popular movies.
 
-Backend-приложение для сервиса рекомендаций фильмов. Позволяет пользователям добавлять контент, ставить лайки и управлять списком друзей.
+## Key Features
 
-## Database Schema
+*   **User Management**: Create, update, and retrieve user profiles.
+*   **Film Catalog**: Add, update, and browse film information, including details like release date, duration, and MPA rating.
+*   **Social Interactions**:
+    *   Users can add and remove each other as friends.
+    *   Users can "like" films to recommend them.
+*   **Popularity-Based Recommendations**: The service can generate a list of the most popular films based on the number of likes.
+*   **Genre and MPA Ratings**: Films are categorized by genre and MPA ratings, which are managed as separate entities.
 
-Для визуализации структуры базы данных используется **DBML**. Схема ниже полностью соответствует текущей реализации в `schema.sql`.
+## Tech Stack
 
-### SQL-описание таблиц:
-* **films** — информация о фильмах (связана с рейтингами MPA).
-* **users** — профили пользователей.
-* **mpa_ratings** — справочник возрастных рейтингов (G, PG, PG-13, R, NC-17).
-* **genres** — справочник жанров фильмов.
-* **film_genres** — связующая таблица для жанров фильма (Many-to-Many).
-* **film_likes** — учет лайков от пользователей (Many-to-Many).
-* **user_friends** — таблица связей между пользователями (Друзья).
+*   **Framework**: [Spring Boot](https://spring.io/projects/spring-boot) (v3.2.4)
+*   **Language**: [Java](https://www.java.com/) (v21)
+*   **Database**:
+    *   [H2 Database](https://www.h2database.com/): A fast SQL database configured to persist data to a local file (`./db/filmorate`).
+    *   [Spring Data JPA](https://spring.io/projects/spring-data-jpa): For simplified data access and repository management.
+*   **API & Validation**:
+    *   [Spring Web](https://docs.spring.io/spring-framework/reference/web/webmvc.html): For building the RESTful API.
+    *   [Hibernate Validator](https://hibernate.org/validator/): For request data validation.
+*   **Utilities**:
+    *   [Lombok](https://projectlombok.org/): To reduce boilerplate code (e.g., getters, setters, constructors).
+    *   [Logbook](https://github.com/zalando/logbook): For detailed HTTP request and response logging.
+*   **Build Tool**: [Maven](https://maven.apache.org/)
 
-## Примеры SQL-запросов
+## Architecture
 
-### Работа с фильмами
-```sql
--- Получение всех фильмов с названиями их MPA рейтингов
-SELECT f.*, m.name AS mpa_name
-FROM films f
-JOIN mpa_ratings m ON f.rating_id = m.id;
+The application follows a classic three-tier architecture, promoting separation of concerns and maintainability.
 
--- Получение топ-10 самых популярных фильмов по количеству лайков
-SELECT f.name, COUNT(fl.user_id) AS likes_count
-FROM films f
-LEFT JOIN film_likes fl ON f.id = fl.film_id
-GROUP BY f.id
-ORDER BY likes_count DESC
-LIMIT 10;
-```
+*   **Controller Layer** (`ru.yandex.practicum.filmorate.controller`):
+    *   Handles incoming HTTP requests, validates request bodies (`DTOs`), and maps them to service layer calls.
+    *   An `ErrorHandler` class provides centralized exception handling.
+*   **Service Layer** (`ru.yandex.practicum.filmorate.service`):
+    *   Contains the core business logic of the application.
+    *   Orchestrates calls to different repositories to gather and process data (e.g., combining film data with its genres and likes).
+*   **Data Access Layer (DAL)** (`ru.yandex.practicum.filmorate.dal`):
+    *   Manages all interactions with the database.
+    *   Uses a repository pattern with `JdbcTemplate` for executing SQL queries.
+    *   The logic is further separated into specialized repositories for `Film`, `User`, `Genre`, `Like`, and `Friendship`, making the data logic modular and clean.
 
-### Работа с пользователями и друзьями
-```sql
--- Получение списка всех друзей пользователя (например, с ID = 1)
-SELECT u.*
-FROM users u
-JOIN user_friends uf ON u.id = uf.friend_id
-WHERE uf.user_id = 1;
+### Database Schema
 
--- Поиск общих друзей между пользователем 1 и пользователем 2
-SELECT u.*
-FROM users u
-JOIN user_friends f1 ON u.id = f1.friend_id
-JOIN user_friends f2 ON u.id = f2.friend_id
-WHERE f1.user_id = 1 AND f2.user_id = 2;
-```
+The database schema is designed to efficiently manage relationships between users, films, genres, and likes.
 
-## Тестирование и запуск
+![ER Diagram](database_er_diagram.png)
 
-### Инициализация базы данных
-При каждом запуске приложения база данных H2 инициализируется заново. Команды `DROP TABLE ... CASCADE` в `schema.sql` гарантируют, что тесты будут проходить в изолированной среде без влияния «грязных» данных от предыдущих запусков.
+## How to Run
 
-### Запуск тестов Postman
-1. Запустите приложение в IDE или через терминал: `mvn spring-boot:run`.
-2. Импортируйте коллекцию `add-database.json` в Postman.
-3. Запустите Collection Runner.
-4. Все тесты (41 запрос) должны иметь статус Passed.
+1.  **Prerequisites**:
+    *   Java 21 or higher.
+    *   Apache Maven.
 
-## Технологический стек
-* Java 11/17
-* Spring Boot (Starter Web, Validation)
-* JDBC (JdbcTemplate)
-* H2 Database (Persistent storage)
-* Maven
-* Lombok
-* Postman (API Testing)
+2.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/java-filmorate.git
+    cd java-filmorate
+    ```
+
+3.  **Build and run the application**:
+    ```bash
+    mvn spring-boot:run
+    ```
+    The application will start on `http://localhost:8080`.
+
+## API Endpoints
+
+The main endpoints provided by the API are:
+
+*   `GET /users`, `POST /users`, `PUT /users`
+*   `GET /users/{id}`, `GET /users/{id}/friends`, `GET /users/{id}/friends/common/{otherId}`
+*   `PUT /users/{id}/friends/{friendId}`, `DELETE /users/{id}/friends/{friendId}`
+*   `GET /films`, `POST /films`, `PUT /films`
+*   `GET /films/{id}`
+*   `PUT /films/{id}/like/{userId}`, `DELETE /films/{id}/like/{userId}`
+*   `GET /films/popular?count={count}`
+*   `GET /genres`, `GET /genres/{id}`
+*   `GET /mpa`, `GET /mpa/{id}`
+
+For detailed request and response formats, please refer to the Postman collection included in the `/postman` directory.
