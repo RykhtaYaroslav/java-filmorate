@@ -3,6 +3,7 @@
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
 ![DB](https://img.shields.io/badge/database-H2-blue.svg?style=for-the-badge)
+![Database ER Diagram](database_er_diagram.png)
 
 Backend-приложение для сервиса рекомендаций фильмов. Позволяет пользователям добавлять контент, ставить лайки и управлять списком друзей.
 
