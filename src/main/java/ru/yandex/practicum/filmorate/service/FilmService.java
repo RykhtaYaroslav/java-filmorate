@@ -103,13 +103,7 @@ public class FilmService {
     public FilmDto addLike(Long filmId, Long userId) {
         log.debug("Запрос от пользователя id={} на добавление лайка фильму id={}", userId, filmId);
 
-        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
-
         likeRepository.addLike(filmId, userId);
-
-        film.setUserLikeIds(likeRepository.getLikes(filmId));
-        film.setGenres(filmGenreRepository.getGenres(filmId));
-
         log.info("Пользователь id={} успешно поставил лайк фильму id={}", userId, filmId);
         return findById(filmId);
     }
@@ -124,21 +118,29 @@ public class FilmService {
 
     public Collection<FilmDto> getPopularFilms(int count) {
         log.debug("Запрос на получение {} самых популярных фильмов", count);
-        Collection<Film> filmSet = filmStorage.getPopularFilms(count);
-        if (filmSet.isEmpty()) {
+
+        Collection<Film> films = filmStorage.getPopularFilms(count);
+
+        if (films.isEmpty()) {
             log.info("Список популярных фильмов пуст");
             return Collections.emptyList();
         }
-        Map<Long, Set<Genre>> genres = filmGenreRepository.getGenres();
-        Map<Long, Set<Long>> likes = likeRepository.getLikes();
 
-        filmSet.forEach(film -> {
+        enrichFilms(films);
+        log.info("Возвращено {} популярных фильмов", films.size());
+        return films.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private void enrichFilms(Collection<Film> films) {
+        List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
+
+        Map<Long, Set<Genre>> genres = filmGenreRepository.getGenresForFilms(filmIds);
+        Map<Long, Set<Long>> likes = likeRepository.getLikesForFilms(filmIds);
+
+        films.forEach(film -> {
             film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
             film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
         });
-
-        log.info("Возвращено {} популярных фильмов", filmSet.size());
-        return filmSet.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private void validateFilm(FilmCreateRequest filmCreateRequest) {
