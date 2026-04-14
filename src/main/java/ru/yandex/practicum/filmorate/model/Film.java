@@ -19,4 +19,5 @@ public class Film {
     private MpaRating rating;
     private Set<Genre> genres;
     private Set<Long> userLikeIds;
+    private Set<Director> directors;
 }

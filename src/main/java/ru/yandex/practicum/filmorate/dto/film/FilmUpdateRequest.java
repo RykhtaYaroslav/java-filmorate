@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.dto.mpa.MpaRatingRequest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FilmUpdateRequest {
@@ -33,4 +34,6 @@ public class FilmUpdateRequest {
     private MpaRatingRequest mpa;
 
     private List<GenreRequest> genres;
+
+    private Set<Long> directors;
 }
