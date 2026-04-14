@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repositories.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.repositories.genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.like.LikeRepository;
@@ -25,6 +26,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final FilmGenreRepository filmGenreRepository;
     private final LikeRepository likeRepository;
+    private final DirectorRepository directorRepository;
 
     private static final int MPA_RATINGS_AMOUNT = 5;
     private static final int GENRES_AMOUNT = 6;
@@ -129,6 +131,23 @@ public class FilmService {
         enrichFilms(films);
         log.info("Возвращено {} популярных фильмов", films.size());
         return films.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+    
+    public Collection<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
+        log.debug("Запрос на получение фильмов режиссера id={} с сортировкой по {}", directorId, sortBy);
+
+        if (directorRepository.findById(directorId).isEmpty()) {
+            log.warn("Режиссер с id={} не найден", directorId);
+            throw new NotFoundException("Режиссер с id = " + directorId + " не найден");
+        }
+
+        Collection<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+
+        enrichFilms(films);
+        log.info("Возвращено {} фильмов для режиссера id={}", films.size(), directorId);
+        return films.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private void enrichFilms(Collection<Film> films) {
