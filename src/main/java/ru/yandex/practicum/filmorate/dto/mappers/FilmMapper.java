@@ -112,9 +112,9 @@ public final class FilmMapper {
 
         return dto;
     }
-    
+
     private void setDirectors(Set<DirectorForFilmRequest> directorForFilmRequests, Film film) {
-        if (directorForFilmRequests != null){
+        if (directorForFilmRequests != null) {
             Set<Director> directors = directorForFilmRequests.stream()
                     .map(DirectorMapper::mapToDirectorForFilm)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
