@@ -19,11 +19,27 @@ public class LikeRepositoryDb implements LikeRepository {
     private final NamedParameterJdbcTemplate namedJdbc;
     private final LikeExtractor extractor;
 
-    private static final String ADD_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
-    private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
-    private static final String GET_LIKES_QUERY = "SELECT film_id, user_id FROM film_likes";
-    private static final String GET_LIKES_BY_FILM_ID_QUERY = "SELECT user_id FROM film_likes WHERE film_id = ?";
-    private static final String GET_LIKES_FOR_FILMS_QUERY = "SELECT film_id, user_id FROM film_likes WHERE film_id IN (:filmIds)";
+    private static final String ADD_LIKE_QUERY = """
+            INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)
+            """;
+    private static final String DELETE_LIKE_QUERY = """
+            DELETE FROM film_likes
+            WHERE film_id = ? AND user_id = ?
+            """;
+    private static final String GET_LIKES_QUERY = """
+            SELECT film_id, user_id
+            FROM film_likes
+            """;
+    private static final String GET_LIKES_BY_FILM_ID_QUERY = """
+            SELECT user_id
+            FROM film_likes
+            WHERE film_id = ?
+            """;
+    private static final String GET_LIKES_FOR_FILMS_QUERY = """
+            SELECT film_id, user_id
+            FROM film_likes
+            WHERE film_id IN (:filmIds)
+            """;
 
     @Override
     public void addLike(Long filmId, Long userId) {

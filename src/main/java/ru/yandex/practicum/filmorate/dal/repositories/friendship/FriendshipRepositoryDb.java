@@ -19,11 +19,27 @@ public class FriendshipRepositoryDb implements FriendshipRepository {
     private final JdbcTemplate jdbc;
     private final FriendshipRowMapper friendshipRowMapper;
 
-    private static final String SEND_FRIENDSHIP_REQUEST = "INSERT INTO user_friends (user_id, friend_id) VALUES(?, ?)";
-    private static final String DELETE_FRIENDSHIP_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
-    private static final String FIND_FRIENDSHIP_QUERY = "SELECT * FROM user_friends WHERE user_id = ? AND friend_id = ?";
-    private static final String GET_FRIENDS_QUERY = "SELECT user_id, friend_id FROM user_friends";
-    private static final String GET_FRIENDS_BY_USER_ID_QUERY = "SELECT friend_id FROM user_friends WHERE user_id = ?";
+    private static final String SEND_FRIENDSHIP_REQUEST = """
+            INSERT INTO user_friends (user_id, friend_id) VALUES(?, ?)
+            """;
+    private static final String DELETE_FRIENDSHIP_QUERY = """
+            DELETE FROM user_friends
+            WHERE user_id = ? AND friend_id = ?
+            """;
+    private static final String FIND_FRIENDSHIP_QUERY = """
+            SELECT *
+            FROM user_friends
+            WHERE user_id = ? AND friend_id = ?
+            """;
+    private static final String GET_FRIENDS_QUERY = """
+            SELECT user_id, friend_id
+            FROM user_friends
+            """;
+    private static final String GET_FRIENDS_BY_USER_ID_QUERY = """
+            SELECT friend_id
+            FROM user_friends
+            WHERE user_id = ?
+            """;
 
     @Override
     public Friendship sendFriendshipRequest(Friendship friendship) {

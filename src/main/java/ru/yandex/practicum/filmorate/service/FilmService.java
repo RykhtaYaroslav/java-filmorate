@@ -134,7 +134,7 @@ public class FilmService {
         log.info("Возвращено {} популярных фильмов", films.size());
         return films.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
-    
+
     public Collection<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
         log.debug("Запрос на получение фильмов режиссера id={} с сортировкой по {}", directorId, sortBy);
 

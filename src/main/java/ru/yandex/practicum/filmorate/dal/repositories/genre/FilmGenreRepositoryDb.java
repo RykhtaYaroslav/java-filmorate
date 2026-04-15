@@ -15,13 +15,37 @@ public class FilmGenreRepositoryDb implements FilmGenreRepository {
     private final JdbcTemplate jdbc;
     private final NamedParameterJdbcTemplate namedJdbc;
 
-    private static final String ADD_GENRES_QUERY = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
-    private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
-    private static final String GET_GENRES_QUERY = "SELECT fg.film_id, g.id FROM film_genres fg JOIN genres g ON fg.genre_id = g.id ORDER BY g.id";
-    private static final String GET_GENRES_BY_FILM_ID_QUERY = "SELECT genre_id FROM film_genres WHERE film_id = ? ORDER BY genre_id";
-    private static final String GET_GENRES_FOR_FILMS_QUERY = "SELECT fg.film_id, g.id FROM film_genres fg JOIN genres g ON fg.genre_id = g.id WHERE fg.film_id IN (:filmIds) ORDER BY g.id";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM genres ORDER BY id";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM genres WHERE id = ?";
+    private static final String ADD_GENRES_QUERY = """
+            INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)
+            """;
+    private static final String DELETE_GENRES_QUERY = """
+            DELETE FROM film_genres WHERE film_id = ?
+            """;
+    private static final String GET_GENRES_QUERY = """
+            SELECT fg.film_id, g.id
+            FROM film_genres fg
+            JOIN genres g ON fg.genre_id = g.id
+            ORDER BY g.id
+            """;
+    private static final String GET_GENRES_BY_FILM_ID_QUERY = """
+            SELECT genre_id
+            FROM film_genres
+            WHERE film_id = ?
+            ORDER BY genre_id
+            """;
+    private static final String GET_GENRES_FOR_FILMS_QUERY = """
+            SELECT fg.film_id, g.id
+            FROM film_genres fg
+            JOIN genres g ON fg.genre_id = g.id
+            WHERE fg.film_id IN (:filmIds)
+            ORDER BY g.id
+            """;
+    private static final String FIND_ALL_QUERY = """
+            SELECT * FROM genres ORDER BY id
+            """;
+    private static final String FIND_BY_ID_QUERY = """
+            SELECT * FROM genres WHERE id = ?
+            """;
 
     @Override
     public void addGenres(Long filmId, Set<Genre> genres) {
