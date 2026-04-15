@@ -79,9 +79,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor,
                          FilmGenreRepository filmGenreRepository, DirectorRepository directorRepository) {
         super(jdbc, mapper);
-        this.extractor = extractor;
         this.filmGenreRepository = filmGenreRepository;
         this.directorRepository = directorRepository;
+        this.extractor = extractor;
     }
 
     @Override
@@ -99,7 +99,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         }
 
         Collection<Director> directors = film.getDirectors();
-        
+
         if (directors != null && !directors.isEmpty()) {
                 directorRepository.setDirectorsToFilm(id,directors);
             }

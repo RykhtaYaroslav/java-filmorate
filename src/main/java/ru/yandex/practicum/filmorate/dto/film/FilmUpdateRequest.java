@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -25,7 +24,6 @@ public class FilmUpdateRequest {
     @Size(max = 200, message = "Максимальная длина описания - 200 символов")
     private String description;
 
-    @PastOrPresent(message = "Дата релиза не может быть в будущем")
     @MinimumDate(message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
 

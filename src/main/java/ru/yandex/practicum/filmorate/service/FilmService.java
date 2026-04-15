@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.dto.film.FilmUpdateRequest;
 import ru.yandex.practicum.filmorate.dto.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
@@ -97,6 +98,7 @@ public class FilmService {
         Film film = optionalFilm.get();
         film.setGenres(filmGenreRepository.getGenres(id));
         film.setUserLikeIds(likeRepository.getLikes(id));
+        film.setDirectors(new LinkedHashSet<>(directorRepository.getDirectorsByFilmId(id)));
 
         log.debug("Найден фильм: {}", film);
         return FilmMapper.mapToFilmDto(film);
@@ -151,14 +153,16 @@ public class FilmService {
     }
 
     private void enrichFilms(Collection<Film> films) {
-        List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
+        List<Long> filmIds = films.stream().map(Film::getId).toList();
 
         Map<Long, Set<Genre>> genres = filmGenreRepository.getGenresForFilms(filmIds);
         Map<Long, Set<Long>> likes = likeRepository.getLikesForFilms(filmIds);
+        Map<Long, Set<Director>> directors = directorRepository.getDirectorsForFilms(filmIds);
 
         films.forEach(film -> {
             film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
             film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
+            film.setDirectors(directors.getOrDefault(film.getId(), new LinkedHashSet<>()));
         });
     }
 
