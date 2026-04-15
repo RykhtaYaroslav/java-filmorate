@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.MinimumDate;
+import ru.yandex.practicum.filmorate.dto.director.DirectorForFilmRequest;
 import ru.yandex.practicum.filmorate.dto.genre.GenreRequest;
 import ru.yandex.practicum.filmorate.dto.mpa.MpaRatingRequest;
 
@@ -35,5 +36,5 @@ public class FilmUpdateRequest {
 
     private List<GenreRequest> genres;
 
-    private Set<Long> directors;
+    private Set<DirectorForFilmRequest> directors;
 }
