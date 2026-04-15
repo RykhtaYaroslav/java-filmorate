@@ -5,7 +5,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmExtractor;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.genre.FilmGenreRepository;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
@@ -15,6 +17,7 @@ import java.util.Set;
 @Repository
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     private final FilmGenreRepository filmGenreRepository;
+    private final DirectorRepository directorRepository;
     private final FilmExtractor extractor;
 
     private static final String FIND_BY_ID_QUERY = """
@@ -48,6 +51,10 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
     private static final String DELETE_FILM = "DELETE FROM films WHERE id = ?";
 
+    private static final String INSERT_FILM_DIRECTOR_QUERY = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
+
+    private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM film_directors WHERE film_id = ?";
+
     private static final String FIND_POPULAR_QUERY = """
             SELECT f.*, m.name AS rating_name
             FROM films f
@@ -69,10 +76,12 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY %s
             """;
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor, FilmGenreRepository filmGenreRepository) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor,
+                         FilmGenreRepository filmGenreRepository, DirectorRepository directorRepository) {
         super(jdbc, mapper);
         this.extractor = extractor;
         this.filmGenreRepository = filmGenreRepository;
+        this.directorRepository = directorRepository;
     }
 
     @Override
@@ -88,6 +97,12 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         if (film.getGenres() != null) {
             filmGenreRepository.addGenres(id, film.getGenres());
         }
+
+        Collection<Director> directors = film.getDirectors();
+        
+        if (directors != null && !directors.isEmpty()) {
+                directorRepository.setDirectorsToFilm(id,directors);
+            }
         return film;
     }
 
@@ -101,12 +116,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 film.getRating().getId(),
                 film.getId());
 
-        if (film.getGenres() != null) {
-            filmGenreRepository.deleteGenres(film.getId());
-            if (!film.getGenres().isEmpty()) {
-                filmGenreRepository.addGenres(film.getId(), film.getGenres());
-            }
-        }
+        updateGenres(film);
+        updateDirectors(film);
         return film;
     }
 
@@ -148,5 +159,25 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         String query = String.format(FIND_FILMS_BY_DIRECTOR_ID_QUERY, orderBy);
 
         return findMany(query, extractor, directorId);
+    }
+
+    private void updateGenres(Film film) {
+        if (film.getGenres() != null) {
+            filmGenreRepository.deleteGenres(film.getId());
+            if (!film.getGenres().isEmpty()) {
+                filmGenreRepository.addGenres(film.getId(), film.getGenres());
+            }
+        }
+    }
+
+    private void updateDirectors(Film film) {
+        Collection<Director> directors = film.getDirectors();
+
+        if (directors != null) {
+            jdbc.update(DELETE_FILM_DIRECTORS_QUERY, film.getId());
+            if (!directors.isEmpty()) {
+                directorRepository.setDirectorsToFilm(film.getId(), directors);
+            }
+        }
     }
 }

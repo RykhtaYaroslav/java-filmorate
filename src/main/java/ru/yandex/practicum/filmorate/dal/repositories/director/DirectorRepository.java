@@ -15,4 +15,6 @@ public interface DirectorRepository {
     Collection<Director> findAll();
 
     Optional<Director> findById(Long id);
+
+    void setDirectorsToFilm(Long filmId, Collection<Director> directors);
 }

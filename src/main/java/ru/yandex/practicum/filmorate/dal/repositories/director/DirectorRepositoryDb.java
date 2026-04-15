@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.dal.repositories.director;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dal.mappers.director.DirectorBatchSetter;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.model.Director;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -33,6 +35,11 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
             DELETE
             FROM directors
             WHERE id = ?
+            """;
+
+    private static final String SET_DIRECTORS_TO_FILM = """
+            INSERT INTO film_directors (film_id, director_id)
+            VALUES (?, ?)
             """;
 
     public DirectorRepositoryDb(JdbcTemplate jdbc, RowMapper<Director> mapper) {
@@ -65,5 +72,9 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
     @Override
     public Optional<Director> findById(Long id) {
         return findOne(FIND_BY_ID_QUERY, id);
+    }
+
+    public void setDirectorsToFilm(Long filmId, Collection<Director> directors) {
+        jdbc.batchUpdate(SET_DIRECTORS_TO_FILM, new DirectorBatchSetter(filmId, new ArrayList<>(directors)));
     }
 }
