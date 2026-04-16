@@ -52,9 +52,11 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             SELECT f.*, m.name AS rating_name
             FROM films f
             LEFT JOIN mpa_ratings m ON f.rating_id = m.id
+            LEFT JOIN film_genres g ON f.id = g.film_id
             LEFT JOIN film_likes fl ON f.id = fl.film_id
+            WHERE (? IS NULL OR g.genre_id = ?) AND (? IS NULL OR EXTRACT(YEAR FROM CAST(f.release_date AS DATE)) = ?)
             GROUP BY f.id
-            ORDER BY COUNT(fl.user_id) DESC
+            ORDER BY COUNT(DISTINCT fl.user_id) DESC
             LIMIT ?
             """;
 
@@ -116,8 +118,13 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(Integer amount) {
-        return findMany(FIND_POPULAR_QUERY, extractor, amount);
+    public Collection<Film> getPopularFilms(Integer amount, Integer genreId, Integer year) {
+        return findMany(FIND_POPULAR_QUERY, extractor,
+                genreId,
+                genreId,
+                year,
+                year,
+                amount);
     }
 
     @Override
