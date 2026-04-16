@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +20,9 @@ import java.util.Collection;
 @RequestMapping("/users")
 @Slf4j
 @Validated
+@RequiredArgsConstructor
 public class UserController {
     private final UserService service;
-
-    @Autowired
-    public UserController(UserService service) {
-        this.service = service;
-    }
 
     @GetMapping("/{id}")
     public UserDto findById(@PathVariable @Positive Long id) {
