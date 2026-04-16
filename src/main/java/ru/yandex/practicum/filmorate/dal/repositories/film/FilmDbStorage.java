@@ -146,7 +146,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
     @Override
     public Film addLike(Long filmId, Long userId) {
-        throw new UnsupportedOperationException("Этот метод должен быть реализован в сервисном слое");
+        throw new UnsupportedOperationException("Метод должен быть реализован в сервисном слое");
     }
 
     @Override
