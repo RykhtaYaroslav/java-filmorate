@@ -146,6 +146,12 @@ public class FilmService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    public Collection<FilmDto> getFilmRecommendations(Long id) {
+        log.debug("Запрос на получение рекомендованных фильмов для User {}", id);
+        return filmStorage.getRecommendationFilms(id).stream().map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     private void enrichFilms(Collection<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).toList();
 

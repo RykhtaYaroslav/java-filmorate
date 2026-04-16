@@ -10,9 +10,7 @@ import ru.yandex.practicum.filmorate.dal.repositories.genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
@@ -30,6 +28,31 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     private static final String CREATE_FILM_QUERY = """
             INSERT INTO films (name, description, release_date, duration, rating_id)
             VALUES (?, ?, ?, ?, ?)
+            """;
+
+    private static final String FIND_USER_LIKES_INTERSECTIONS = """
+            SELECT fl2.user_id
+            FROM film_likes fl1
+            JOIN film_likes fl2 ON fl1.film_id = fl2.film_id
+            WHERE fl1.user_id = ?
+            AND fl2.user_id <> ?
+            GROUP BY fl2.user_id
+            ORDER BY COUNT(fl2.film_id) DESC
+            LIMIT 1
+            """;
+
+    private static final String FIND_RECOMMENDATION_FILMS = """
+            SELECT f.*, m.name
+            FROM films f
+            LEFT JOIN mpa_ratings m ON f.rating_id = m.id
+            WHERE f.id IN (
+            SELECT fl.film_id
+            FROM film_likes AS fl
+            WHERE fl.user_id = ?
+            AND fl.film_id NOT IN (SELECT film_id FROM film_likes WHERE user_id = ?)
+            GROUP BY fl.film_id
+            ORDER BY (SELECT COUNT(*) FROM film_likes WHERE film_id = fl.film_id) DESC
+            );
             """;
 
     private static final String UPDATE_FIELDS_QUERY = """
@@ -67,19 +90,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             LIMIT ?
             """;
 
-    private static final String FIND_FILMS_BY_DIRECTOR_ID_QUERY = """
-            SELECT f.*, m.name AS rating_name
-            FROM films f
-            LEFT JOIN mpa_ratings m ON f.rating_id = m.id
-            INNER JOIN film_directors fd ON f.id = fd.film_id
-            LEFT JOIN film_likes fl ON f.id = fl.film_id
-            WHERE fd.director_id = ?
-            GROUP BY f.id
-            ORDER BY %s
-            """;
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor,
-                         FilmGenreRepository filmGenreRepository, DirectorRepository directorRepository) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, ResultSetExtractor<Set<Film>> extractor, FilmGenreRepository filmGenreRepository) {
         super(jdbc, mapper);
         this.filmGenreRepository = filmGenreRepository;
         this.directorRepository = directorRepository;
@@ -151,7 +163,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
     @Override
     public Film addLike(Long filmId, Long userId) {
-        throw new UnsupportedOperationException("Этот метод должен быть реализован в сервисном слое");
+        throw new UnsupportedOperationException("Метод должен быть реализован в сервисном слое");
     }
 
     @Override
@@ -160,6 +172,22 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
+    public Collection<Film> getRecommendationFilms(Long userId) {
+        return findUserWithMostIntersections(userId)
+                .map(neighborId -> {
+                    return jdbc.query(FIND_RECOMMENDATION_FILMS, extractor, neighborId, userId);
+                })
+                .orElseGet(Collections::emptySet);
+    }
+
+    public Optional<Long> findUserWithMostIntersections(Long userId) {
+        List<Long> result = jdbc.query(
+                FIND_USER_LIKES_INTERSECTIONS,
+                (rs, rowNum) -> rs.getLong("user_id"),
+                userId, userId
+        );
+        return result.stream().findFirst();
+    }  
     public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
         String orderBy = sortBy.equals("year") ? "f.release_date" : "COUNT(fl.user_id) DESC";
 
