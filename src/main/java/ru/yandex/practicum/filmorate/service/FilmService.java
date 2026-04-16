@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repositories.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.repositories.genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.like.LikeRepository;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.dto.film.FilmUpdateRequest;
 import ru.yandex.practicum.filmorate.dto.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
@@ -25,6 +27,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final FilmGenreRepository filmGenreRepository;
     private final LikeRepository likeRepository;
+    private final DirectorRepository directorRepository;
 
     private static final int MPA_RATINGS_AMOUNT = 5;
     private static final int GENRES_AMOUNT = 6;
@@ -95,6 +98,7 @@ public class FilmService {
         Film film = optionalFilm.get();
         film.setGenres(filmGenreRepository.getGenres(id));
         film.setUserLikeIds(likeRepository.getLikes(id));
+        film.setDirectors(new LinkedHashSet<>(directorRepository.getDirectorsByFilmId(id)));
 
         log.debug("Найден фильм: {}", film);
         return FilmMapper.mapToFilmDto(film);
@@ -125,15 +129,34 @@ public class FilmService {
         return films.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    public Collection<FilmDto> getFilmsByDirector(Long directorId, String sortBy) {
+        log.debug("Запрос на получение фильмов режиссера id={} с сортировкой по {}", directorId, sortBy);
+
+        if (directorRepository.findById(directorId).isEmpty()) {
+            log.warn("Режиссер с id={} не найден", directorId);
+            throw new NotFoundException("Режиссер с id = " + directorId + " не найден");
+        }
+
+        Collection<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+
+        enrichFilms(films);
+        log.info("Возвращено {} фильмов для режиссера id={}", films.size(), directorId);
+        return films.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     private void enrichFilms(Collection<Film> films) {
-        List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
+        List<Long> filmIds = films.stream().map(Film::getId).toList();
 
         Map<Long, Set<Genre>> genres = filmGenreRepository.getGenresForFilms(filmIds);
         Map<Long, Set<Long>> likes = likeRepository.getLikesForFilms(filmIds);
+        Map<Long, Set<Director>> directors = directorRepository.getDirectorsForFilms(filmIds);
 
         films.forEach(film -> {
             film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
             film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
+            film.setDirectors(directors.getOrDefault(film.getId(), new LinkedHashSet<>()));
         });
     }
 

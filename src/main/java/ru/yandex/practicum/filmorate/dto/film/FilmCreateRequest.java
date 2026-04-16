@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.dto.film;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.MinimumDate;
+import ru.yandex.practicum.filmorate.dto.director.DirectorForFilmRequest;
 import ru.yandex.practicum.filmorate.dto.genre.GenreRequest;
 import ru.yandex.practicum.filmorate.dto.mpa.MpaRatingRequest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class FilmCreateRequest {
@@ -29,4 +31,6 @@ public class FilmCreateRequest {
     private MpaRatingRequest mpa;
 
     private List<GenreRequest> genres;
+
+    private Set<DirectorForFilmRequest> directors;
 }
