@@ -6,6 +6,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dal.mappers.like.LikeExtractor;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
@@ -16,6 +17,7 @@ import java.util.*;
 public class LikeRepositoryDb implements LikeRepository {
     private final JdbcTemplate jdbc;
     private final NamedParameterJdbcTemplate namedJdbc;
+    private final LikeExtractor extractor;
 
     private static final String ADD_LIKE_QUERY = """
             INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)
@@ -81,15 +83,9 @@ public class LikeRepositoryDb implements LikeRepository {
         if (filmIds == null || filmIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, Collection<Long>> params = Collections.singletonMap("filmIds", filmIds);
-        return namedJdbc.query(GET_LIKES_FOR_FILMS_QUERY, params, rs -> {
-            Map<Long, Set<Long>> likes = new HashMap<>();
-            while (rs.next()) {
-                long filmId = rs.getLong("film_id");
-                long userId = rs.getLong("user_id");
-                likes.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
-            }
-            return likes;
-        });
+
+        Map<String, Collection<Long>> params = Map.of("filmIds", filmIds);
+
+        return namedJdbc.query(GET_LIKES_FOR_FILMS_QUERY, params, extractor);
     }
 }
