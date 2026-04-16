@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -80,6 +81,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY COUNT(fl.user_id) DESC
             LIMIT ?
             """;
+
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, ResultSetExtractor<Set<Film>> extractor, FilmGenreRepository filmGenreRepository) {
         super(jdbc, mapper);
