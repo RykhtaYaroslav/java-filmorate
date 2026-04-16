@@ -120,17 +120,11 @@ public class FilmService {
         return findById(filmId);
     }
 
-    public Collection<FilmDto> getPopularFilms(int count) {
+    public Collection<FilmDto> getPopularFilms(Integer count, Integer genreId, Integer year) {
         log.debug("Запрос на получение {} самых популярных фильмов", count);
-
-        Collection<Film> films = filmStorage.getPopularFilms(count);
-
-        if (films.isEmpty()) {
-            log.info("Список популярных фильмов пуст");
-            return Collections.emptyList();
-        }
-
+        Collection<Film> films = filmStorage.getPopularFilms(count, genreId, year);
         enrichFilms(films);
+
         log.info("Возвращено {} популярных фильмов", films.size());
         return films.stream().map(FilmMapper::mapToFilmDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
