@@ -72,11 +72,17 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY f.id
             """;
 
-    private static final String DELETE_FILM = "DELETE FROM films WHERE id = ?";
+    private static final String DELETE_FILM = """
+            DELETE
+            FROM films
+            WHERE id = ?
+            """;
 
-    private static final String INSERT_FILM_DIRECTOR_QUERY = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
-
-    private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM film_directors WHERE film_id = ?";
+    private static final String DELETE_FILM_DIRECTORS_QUERY = """
+            DELETE
+            FROM film_directors
+            WHERE film_id = ?
+            """;
 
     private static final String FIND_POPULAR_QUERY = """
             SELECT f.*, m.name AS rating_name
@@ -90,12 +96,22 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             LIMIT ?
             """;
 
+    private static final String FIND_FILMS_BY_DIRECTOR_ID_QUERY = """
+            SELECT f.*, m.name AS rating_name
+            FROM films f
+            LEFT JOIN mpa_ratings m ON f.rating_id = m.id
+            INNER JOIN film_directors fd ON f.id = fd.film_id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            WHERE fd.director_id = ?
+            GROUP BY f.id
+            ORDER BY %s
+            """;
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, ResultSetExtractor<Set<Film>> extractor, FilmGenreRepository filmGenreRepository) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor, FilmGenreRepository filmGenreRepository, DirectorRepository directorRepository) {
         super(jdbc, mapper);
         this.filmGenreRepository = filmGenreRepository;
-        this.directorRepository = directorRepository;
         this.extractor = extractor;
+        this.directorRepository = directorRepository;
     }
 
     @Override
@@ -115,8 +131,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         Collection<Director> directors = film.getDirectors();
 
         if (directors != null && !directors.isEmpty()) {
-                directorRepository.setDirectorsToFilm(id,directors);
-            }
+            directorRepository.setDirectorsToFilm(id, directors);
+        }
         return film;
     }
 
@@ -187,7 +203,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 userId, userId
         );
         return result.stream().findFirst();
-    }  
+    }
+
     public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
         String orderBy = sortBy.equals("year") ? "f.release_date" : "COUNT(fl.user_id) DESC";
 

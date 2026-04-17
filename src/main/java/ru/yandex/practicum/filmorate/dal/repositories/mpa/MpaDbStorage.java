@@ -14,8 +14,16 @@ import java.util.Optional;
 public class MpaDbStorage extends BaseStorage<MpaRating> {
     private final ResultSetExtractor<List<MpaRating>> extractor;
 
-    private static final String FIND_ALL_QUERY = "SELECT * FROM mpa_ratings ORDER BY id";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM mpa_ratings WHERE id = ?";
+    private static final String FIND_ALL_QUERY = """
+            SELECT *
+            FROM mpa_ratings
+            ORDER BY id
+            """;
+    private static final String FIND_BY_ID_QUERY = """
+            SELECT *
+            FROM mpa_ratings
+            WHERE id = ?
+            """;
 
     public MpaDbStorage(JdbcTemplate jdbc, RowMapper<MpaRating> mapper, ResultSetExtractor<List<MpaRating>> extractor) {
         super(jdbc, mapper);

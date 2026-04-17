@@ -40,7 +40,11 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             ORDER BY id
             """;
 
-    private static final String DELETE_USERS_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String DELETE_USERS_QUERY = """
+            DELETE
+            FROM users
+            WHERE id = ?
+            """;
 
     private static final String FIND_USER_BY_ID_QUERY = """
             SELECT *
