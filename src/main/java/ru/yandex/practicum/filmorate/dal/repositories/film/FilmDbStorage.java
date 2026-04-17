@@ -107,6 +107,16 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY %s
             """;
 
+    private static final String FIND_FILMS_BY_SEARCH_QUERY = """
+            SELECT f.*, m.name AS rating_name
+            FROM films f
+            LEFT JOIN mpa_ratings m ON f.rating_id = m.id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id
+            %s
+            GROUP BY f.id, m.name
+            ORDER BY COUNT(fl.user_id) DESC
+            """;
+
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor, FilmGenreRepository filmGenreRepository, DirectorRepository directorRepository) {
         super(jdbc, mapper);
         this.filmGenreRepository = filmGenreRepository;
@@ -196,21 +206,60 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 .orElseGet(Collections::emptySet);
     }
 
-    public Optional<Long> findUserWithMostIntersections(Long userId) {
-        List<Long> result = jdbc.query(
-                FIND_USER_LIKES_INTERSECTIONS,
-                (rs, rowNum) -> rs.getLong("user_id"),
-                userId, userId
-        );
-        return result.stream().findFirst();
-    }
-
+    @Override
     public Collection<Film> getFilmsByDirector(Long directorId, String sortBy) {
         String orderBy = sortBy.equals("year") ? "f.release_date" : "COUNT(fl.user_id) DESC";
 
         String query = String.format(FIND_FILMS_BY_DIRECTOR_ID_QUERY, orderBy);
 
         return findMany(query, extractor, directorId);
+    }
+
+    @Override
+    public Collection<Film> getSearchFilms(String query, String by) {
+        final String searchPattern = "%" + query.toLowerCase() + "%";
+        final List<String> searchBy = Arrays.asList(by.split(","));
+        final boolean byTitle = searchBy.contains("title");
+        final boolean byDirector = searchBy.contains("director");
+
+        final List<Object> params = new ArrayList<>();
+
+        StringBuilder whereClause = new StringBuilder();
+
+        if (byTitle) {
+            whereClause.append("LOWER(f.name) LIKE ?");
+            params.add(searchPattern);
+        }
+
+        if (byDirector) {
+            if (!whereClause.isEmpty()) {
+                whereClause.append(" OR ");
+            }
+            whereClause.append("LOWER(d.name) LIKE ?");
+            params.add(searchPattern);
+        }
+
+        if (params.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final String joins = byDirector ? """
+                LEFT JOIN film_directors fd ON f.id = fd.film_id
+                LEFT JOIN directors d ON fd.director_id = d.id
+                """ : "";
+
+        final String sql = String.format(FIND_FILMS_BY_SEARCH_QUERY, joins + " WHERE " + whereClause);
+
+        return findMany(sql, extractor, params.toArray());
+    }
+
+    private Optional<Long> findUserWithMostIntersections(Long userId) {
+        List<Long> result = jdbc.query(
+                FIND_USER_LIKES_INTERSECTIONS,
+                (rs, rowNum) -> rs.getLong("user_id"),
+                userId, userId
+        );
+        return result.stream().findFirst();
     }
 
     private void updateGenres(Film film) {
