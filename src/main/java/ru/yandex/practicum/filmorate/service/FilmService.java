@@ -28,6 +28,7 @@ public class FilmService {
     private final FilmGenreRepository filmGenreRepository;
     private final LikeRepository likeRepository;
     private final DirectorRepository directorRepository;
+    private final UserService userService;
 
     private static final int MPA_RATINGS_AMOUNT = 5;
     private static final int GENRES_AMOUNT = 6;
@@ -149,6 +150,18 @@ public class FilmService {
     public Collection<FilmDto> getFilmRecommendations(Long id) {
         log.debug("Запрос на получение рекомендованных фильмов для User {}", id);
         return filmStorage.getRecommendationFilms(id).stream().map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Запрос на получение общих фильмов для User {} и User {}", userId, friendId);
+        userService.findById(userId);
+        userService.findById(friendId);
+
+        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+        log.debug("Возвращено {} общих фильмов для пользователей User {} и User {}", commonFilms.size(), userId, friendId);
+        enrichFilms(commonFilms);
+        return commonFilms.stream().map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
