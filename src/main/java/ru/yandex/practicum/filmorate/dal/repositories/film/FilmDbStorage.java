@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
@@ -121,6 +122,17 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             %s
             GROUP BY f.id, m.name
             ORDER BY COUNT(fl.user_id) DESC
+            """;
+
+    private static final String FIND_LIKED_FILMS = """
+            SELECT f.*, m.name AS rating_name
+            FROM films f
+            JOIN film_likes fl ON f.id = fl.film_id
+            LEFT JOIN mpa_ratings m ON f.rating_id = m.id
+            LEFT JOIN film_genres g ON f.id = g.film_id
+            WHERE user_id = ?
+            GROUP BY f.id
+            ORDER BY COUNT(DISTINCT fl.user_id) DESC
             """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor, FilmGenreRepository filmGenreRepository, DirectorRepository directorRepository) {
@@ -286,5 +298,14 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 directorRepository.setDirectorsToFilm(film.getId(), directors);
             }
         }
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+
+        Set<Film> userLikedFilms = findMany(FIND_LIKED_FILMS, extractor, userId);
+        Set<Film> friendLikedFilms = findMany(FIND_LIKED_FILMS, extractor, friendId);
+
+        return userLikedFilms.stream().filter(friendLikedFilms::contains).collect(Collectors.toSet());
     }
 }
