@@ -25,7 +25,7 @@ public class ReviewController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<ReviewDto> getAll(@RequestParam Long filmId, @RequestParam Long count) {
+    public Collection<ReviewDto> getAll(@RequestParam(required = false) Long filmId, @RequestParam(required = false) Long count) {
         return service.getAll(filmId, count);
     }
 

@@ -4,10 +4,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "reviewId")
 public class ReviewDto {
 
-    private Long id;
+    private Long reviewId;
     private String content;
     private Boolean isPositive;
     private Long userId;

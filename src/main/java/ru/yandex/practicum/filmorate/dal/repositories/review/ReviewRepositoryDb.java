@@ -5,11 +5,12 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dto.mappers.ReviewMapper;
+import ru.yandex.practicum.filmorate.dto.review.ReviewCreateRequest;
+import ru.yandex.practicum.filmorate.dto.review.ReviewUpdateRequest;
 import ru.yandex.practicum.filmorate.model.Review;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRepository {
@@ -38,13 +39,16 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
 
     private static final String ADD_REACTION_QUERY = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
 
+    private static final String DECREASE_REACTION_QUERY = "UPDATE reviews SET useful = useful - ? WHERE id = ?";
+
     public ReviewRepositoryDb(JdbcTemplate jdbc, RowMapper<Review> mapper, ResultSetExtractor<Set<Review>> extractor) {
         super(jdbc, mapper);
         this.extractor = extractor;
     }
 
     @Override
-    public Review create(Review review) {
+    public Review create(ReviewCreateRequest request) {
+        var review = ReviewMapper.mapToReview(request);
         long id = insert(
                 CREATE_REVIEW_QUERY,
                 review.getContent(),
@@ -59,16 +63,16 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
     }
 
     @Override
-    public Review update(Review review) {
+    public Review update(ReviewUpdateRequest request) {
         update(
             UPDATE_REVIEW_QUERY,
-            review.getContent(),
-            review.getIsPositive(),
-            review.getUserId(),
-            review.getFilmId(),
-            review.getId()
+            request.getContent(),
+            request.getIsPositive(),
+            request.getUserId(),
+            request.getFilmId(),
+            request.getReviewId()
         );
-        return review;
+        return ReviewMapper.mapToReview(request);
     }
 
     @Override
@@ -78,18 +82,21 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
 
     @Override
     public Collection<Review> getAll(Long filmId, Long count) {
+        List<Object> params = new LinkedList<>();
         StringBuilder query = new StringBuilder(FIND_ALL_QUERY);
         if (filmId != null) {
             query.append(" WHERE film_id = ?");
+            params.add(filmId);
         }
 
         query.append(" ORDER BY useful");
 
         if (count != null) {
             query.append(" LIMIT ?");
+            params.add(count);
         }
 
-        return findMany(query.toString(), extractor, filmId, count);
+        return findMany(query.toString(), extractor, params.toArray());
     }
 
     @Override
@@ -104,6 +111,6 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
 
     @Override
     public void decreaseUseful(Long reviewId, Long amount) {
-        jdbc.update(ADD_REACTION_QUERY, -amount, reviewId);
+        jdbc.update(DECREASE_REACTION_QUERY, amount, reviewId);
     }
 }

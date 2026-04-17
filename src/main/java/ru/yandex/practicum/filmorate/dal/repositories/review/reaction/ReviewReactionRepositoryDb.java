@@ -24,7 +24,7 @@ public class ReviewReactionRepositoryDb implements ReviewReactionRepository {
 
     private static final String UPDATE_REACTION_QUERY = """
             UPDATE reviews_likes SET
-            is_positive = COALESCE(?, is_POSITIVE)
+            is_positive = COALESCE(?, is_positive)
             WHERE review_id = ? AND user_id = ?
             """;
 
@@ -43,7 +43,7 @@ public class ReviewReactionRepositoryDb implements ReviewReactionRepository {
         if (reaction == null) {
             return jdbc.update(ADD_REACTION_QUERY, true, userId, reviewId);
         } else if (!reaction) {
-            return jdbc.update(UPDATE_REACTION_QUERY, true, reviewId, userId);
+            return jdbc.update(UPDATE_REACTION_QUERY, true, reviewId, userId) * 2;
         }
 
         return 0;
@@ -61,7 +61,7 @@ public class ReviewReactionRepositoryDb implements ReviewReactionRepository {
         if (reaction == null) {
             return jdbc.update(ADD_REACTION_QUERY, false, userId, reviewId);
         } else if (reaction) {
-            return jdbc.update(UPDATE_REACTION_QUERY, false, reviewId, userId);
+            return jdbc.update(UPDATE_REACTION_QUERY, false, reviewId, userId) * 2;
         }
 
         return 0;
