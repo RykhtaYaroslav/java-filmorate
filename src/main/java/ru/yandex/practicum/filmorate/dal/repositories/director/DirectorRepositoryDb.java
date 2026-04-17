@@ -9,7 +9,12 @@ import ru.yandex.practicum.filmorate.dal.mappers.director.DirectorExtractor;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.model.Director;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class DirectorRepositoryDb extends BaseStorage<Director> implements DirectorRepository {

@@ -17,7 +17,14 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,6 +156,15 @@ public class FilmService {
     public Collection<FilmDto> getFilmRecommendations(Long id) {
         log.debug("Запрос на получение рекомендованных фильмов для User {}", id);
         return filmStorage.getRecommendationFilms(id).stream().map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Collection<FilmDto> searchFilms(String query, String by) {
+        log.debug("Запрос на поиск фильмов по запросу '{}' в полях '{}'", query, by);
+        Collection<Film> films = filmStorage.getSearchFilms(query, by);
+        enrichFilms(films);
+        return films.stream()
+                .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

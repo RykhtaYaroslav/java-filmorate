@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class DirectorExtractor implements ResultSetExtractor<Map<Long,Set<Director>>> {
+public class DirectorExtractor implements ResultSetExtractor<Map<Long, Set<Director>>> {
     @Override
     public Map<Long, Set<Director>> extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<Long, Set<Director>> directors = new HashMap<>();
