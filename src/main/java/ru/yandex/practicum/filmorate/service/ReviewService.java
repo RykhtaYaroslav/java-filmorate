@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.dto.review.ReviewUpdateRequest;
 import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 
 import java.util.Collection;
 
@@ -24,6 +26,7 @@ public class ReviewService {
     private final ReviewReactionRepositoryDb reviewReactionRepository;
     private final UserService userService;
     private final FilmService filmService;
+    private final FeedService feedService;
 
     public ReviewDto create(ReviewCreateRequest request) {
         log.debug("Запрос на создание отзыва: {}", request);
@@ -34,7 +37,7 @@ public class ReviewService {
         Review created = reviewRepository.create(request);
         log.info("Отзыв для фильма id={} от пользователя id={} успешно создан с id={}",
                 request.getFilmId(), request.getUserId(), created.getId());
-
+        feedService.addEvent(request.getUserId(), EventType.REVIEW, EventOperation.ADD, created.getId());
         return findById(created.getId());
     }
 
@@ -43,14 +46,16 @@ public class ReviewService {
 
         Review updated = reviewRepository.update(request);
         log.info("Отзыв id={} успешно обновлен", updated.getId());
-
+        feedService.addEvent(request.getUserId(), EventType.REVIEW, EventOperation.UPDATE, updated.getId());
         return findById(updated.getId());
     }
 
     public void delete(Long id) {
         log.debug("Запрос на удаление отзыва id={}", id);
+        ReviewDto rew = findById(id);
         reviewRepository.delete(id);
         log.info("Отзыв id={} успешно удален", id);
+        feedService.addEvent(rew.getUserId(), EventType.REVIEW, EventOperation.REMOVE, id);
     }
 
     public Collection<ReviewDto> getAll(Long filmId, Long count) {
@@ -88,6 +93,7 @@ public class ReviewService {
         } else {
             log.warn("Не удалось поставить лайк отзыву id={} от пользователя id={}. Возможно, лайк уже существует или данные некорректны.", reviewId, userId);
         }
+        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, reviewId);
     }
 
     public void addDislike(Long reviewId, Long userId) {
@@ -100,6 +106,7 @@ public class ReviewService {
         } else {
             log.warn("Не удалось поставить дизлайк отзыву id={} от пользователя id={}. Возможно, дизлайк уже существует или данные некорректны.", reviewId, userId);
         }
+        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, reviewId);
     }
 
     public void removeReaction(Long reviewId, Long userId) {
@@ -112,5 +119,6 @@ public class ReviewService {
         } else {
             log.warn("Не удалось удалить реакцию с отзыва id={} от пользователя id={}. Возможно, реакции не было или данные некорректны.", reviewId, userId);
         }
+        feedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, reviewId);
     }
 }
