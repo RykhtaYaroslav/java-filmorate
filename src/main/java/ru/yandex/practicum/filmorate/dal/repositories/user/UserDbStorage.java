@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -138,6 +140,9 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         Set<User> idFriends = findMany(FIND_USER_FRIENDS_QUERY, extractor, id);
         Set<User> otherIdFriends = findMany(FIND_USER_FRIENDS_QUERY, extractor, otherId);
 
-        return idFriends.stream().filter(otherIdFriends::contains).collect(Collectors.toSet());
+        return idFriends.stream()
+                .filter(otherIdFriends::contains)
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

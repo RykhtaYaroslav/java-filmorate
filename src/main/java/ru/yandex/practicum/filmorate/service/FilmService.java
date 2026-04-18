@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.model.enums.EventOperation;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,16 +81,11 @@ public class FilmService {
             return Collections.emptyList();
         }
 
-        Map<Long, Set<Genre>> genres = filmGenreRepository.getGenres();
-        Map<Long, Set<Long>> likes = likeRepository.getLikes();
+        List<Film> films = new ArrayList<>(filmSet);
+        enrichFilms(films);
 
-        filmSet.forEach(film -> {
-            film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
-            film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
-        });
-
-        log.info("Возвращено {} фильмов", filmSet.size());
-        return filmSet.stream()
+        log.info("Возвращено {} фильмов", films.size());
+        return films.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -117,19 +113,24 @@ public class FilmService {
 
     public FilmDto addLike(Long filmId, Long userId) {
         log.debug("Запрос от пользователя id={} на добавление лайка фильму id={}", userId, filmId);
+        boolean isAdded = likeRepository.addLike(filmId, userId);
 
-        likeRepository.addLike(filmId, userId);
+        if (isAdded) {
+            feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        }
         log.info("Пользователь id={} успешно поставил лайк фильму id={}", userId, filmId);
-        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
         return findById(filmId);
     }
 
     public FilmDto deleteLike(Long filmId, Long userId) {
         log.debug("Запрос от пользователя id={} на удаление лайка с фильма id={}", userId, filmId);
 
-        likeRepository.deleteLike(filmId, userId);
-        log.info("Пользователь id={} успешно удалил лайк с фильма id={}", userId, filmId);
-        feedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+        boolean isDeleted = likeRepository.deleteLike(filmId, userId);
+
+        if (isDeleted) {
+            feedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+            log.info("Пользователь id={} успешно удалил лайк с фильма id={}", userId, filmId);
+        }
         return findById(filmId);
     }
 
@@ -161,7 +162,10 @@ public class FilmService {
 
     public Collection<FilmDto> getFilmRecommendations(Long id) {
         log.debug("Запрос на получение рекомендованных фильмов для User {}", id);
-        return filmStorage.getRecommendationFilms(id).stream().map(FilmMapper::mapToFilmDto)
+        Collection<Film> recommended = new ArrayList<>(filmStorage.getRecommendationFilms(id));
+        enrichFilms(recommended);
+        return recommended.stream()
+                .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

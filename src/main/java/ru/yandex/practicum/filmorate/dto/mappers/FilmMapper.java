@@ -61,6 +61,9 @@ public final class FilmMapper {
             film.setGenres(request.getGenres().stream()
                     .map(genreReq -> Genre.fromId(genreReq.getId()))
                     .collect(Collectors.toCollection(LinkedHashSet::new)));
+        } else {
+            // Для update отсутствие поля genres трактуем как очистку жанров.
+            film.setGenres(new LinkedHashSet<>());
         }
 
         setDirectors(request.getDirectors(), film);
@@ -119,8 +122,6 @@ public final class FilmMapper {
                     .map(DirectorMapper::mapToDirectorForFilm)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             film.setDirectors(directors);
-        } else {
-            film.setDirectors(new LinkedHashSet<>());
         }
     }
 }

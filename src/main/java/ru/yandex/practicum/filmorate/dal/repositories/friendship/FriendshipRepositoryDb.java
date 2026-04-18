@@ -66,8 +66,8 @@ public class FriendshipRepositoryDb implements FriendshipRepository {
     }
 
     @Override
-    public void deleteFriendship(Friendship friendship) {
-        jdbc.update(DELETE_FRIENDSHIP_QUERY, friendship.getFromUserId(), friendship.getToUserId());
+    public boolean deleteFriendship(Friendship friendship) {
+        return jdbc.update(DELETE_FRIENDSHIP_QUERY, friendship.getFromUserId(), friendship.getToUserId()) > 0;
     }
 
     @Override

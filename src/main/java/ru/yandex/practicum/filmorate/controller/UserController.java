@@ -46,7 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/feed")
-    public Collection<FeedDto> getFeedForId(@PathVariable("id") Long id) {
+    public Collection<FeedDto> getFeedForId(@PathVariable("id") @Positive Long id) {
+        service.findById(id);
         return feedService.getFeed(id);
     }
 

@@ -29,7 +29,7 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM reviews";
 
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE id = ? ORDER BY useful DESC";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE id = ?";
 
     private static final String ADD_REACTION_QUERY = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
 
@@ -81,7 +81,7 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
             params.add(filmId);
         }
 
-        query.append(" ORDER BY useful");
+        query.append(" ORDER BY useful DESC, id ASC");
 
         if (count != null) {
             query.append(" LIMIT ?");

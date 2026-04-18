@@ -24,6 +24,7 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
     private static final String FIND_ALL_QUERY = """
             SELECT *
             FROM directors
+            ORDER BY id
             """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT *

@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.like.LikeExtractor;
-import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
 import java.util.Collection;
@@ -47,21 +46,24 @@ public class LikeRepositoryDb implements LikeRepository {
             """;
 
     @Override
-    public void addLike(Long filmId, Long userId) {
+    public boolean addLike(Long filmId, Long userId) {
         try {
             jdbc.update(ADD_LIKE_QUERY, filmId, userId);
+            return true;
         } catch (DuplicateKeyException e) {
-            throw new DataConflictException(String.format("Лайк уже существует: user %d -> film %d", userId, filmId));
+            return false;
         } catch (DataIntegrityViolationException e) {
             throw new NotFoundException(String.format("Не найден фильм %d или пользователь %d", filmId, userId));
         }
     }
 
     @Override
-    public void deleteLike(Long filmId, Long userId) {
+    public boolean deleteLike(Long filmId, Long userId) {
         int rowsAffected = jdbc.update(DELETE_LIKE_QUERY, filmId, userId);
         if (rowsAffected == 0) {
             throw new NotFoundException(String.format("Лайк пользователя %d фильму %d не найден", userId, filmId));
+        } else {
+            return true;
         }
     }
 
