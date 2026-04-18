@@ -54,7 +54,8 @@ public class FilmService {
     }
 
     public FilmDto update(FilmUpdateRequest filmUpdateRequest) {
-        log.debug("Запрос на обновление фильма id={}", filmUpdateRequest.getId());
+        log.info("Запрос на обновление фильма id={}", filmUpdateRequest.getId());
+        log.debug(filmUpdateRequest.toString());
 
         Film film = filmStorage.update(FilmMapper.mapToFilm(filmUpdateRequest));
 
@@ -80,18 +81,17 @@ public class FilmService {
             return Collections.emptyList();
         }
 
-        Map<Long, Set<Genre>> genres = filmGenreRepository.getGenres();
-        Map<Long, Set<Long>> likes = likeRepository.getLikes();
-
-        filmSet.forEach(film -> {
-            film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
-            film.setUserLikeIds(likes.getOrDefault(film.getId(), new HashSet<>()));
-        });
+        enrichFilms(filmSet);
 
         log.info("Возвращено {} фильмов", filmSet.size());
-        return filmSet.stream()
+
+        Set<FilmDto> filmDtos = filmSet.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        log.debug(filmDtos.toString());
+
+        return filmDtos;
     }
 
     public FilmDto findById(Long id) {
