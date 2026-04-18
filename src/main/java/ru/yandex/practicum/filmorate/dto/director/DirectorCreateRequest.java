@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.dto.director;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class DirectorCreateRequest {
-    @NotNull(message = "Имя режиссера не может быть пустым")
+    @NotBlank(message = "Имя режиссера не может быть пустым")
     private String name;
 }

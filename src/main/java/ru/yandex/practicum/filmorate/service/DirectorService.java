@@ -42,11 +42,14 @@ public class DirectorService {
         log.debug("Запрос на поиск режиссера по id={}", id);
         Optional<Director> optionalDirector = directorRepository.findById(id);
 
-        return optionalDirector.map(DirectorMapper::mapToDirectorDto)
-                .orElseThrow(() -> {
-                    log.warn("Режиссер с id={} не найден", id);
-                    return new NotFoundException(String.format("Режиссер с id = %d не найден", id));
-                });
+        if (optionalDirector.isEmpty()) {
+            log.warn("Режиссер с id={} не найден", id);
+            throw new NotFoundException(String.format("Режиссер с id = %d не найден", id));
+        }
+
+        Director director = optionalDirector.get();
+        log.debug("Найден режиссер: {}", director);
+        return DirectorMapper.mapToDirectorDto(director);
     }
 
     public DirectorDto create(DirectorCreateRequest request) {
