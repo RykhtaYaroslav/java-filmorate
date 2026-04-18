@@ -1,13 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.repositories.review;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
-import ru.yandex.practicum.filmorate.dto.mappers.ReviewMapper;
-import ru.yandex.practicum.filmorate.dto.review.ReviewCreateRequest;
-import ru.yandex.practicum.filmorate.dto.review.ReviewUpdateRequest;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.*;

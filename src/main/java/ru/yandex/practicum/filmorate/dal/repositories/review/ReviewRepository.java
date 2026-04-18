@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal.repositories.review;
 
-import ru.yandex.practicum.filmorate.dto.review.ReviewUpdateRequest;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Collection;
