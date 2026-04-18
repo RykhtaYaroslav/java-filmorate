@@ -72,6 +72,7 @@ public class ReviewService {
         Collection<ReviewDto> reviews = reviewRepository.getAll(filmId, count).stream()
                 .map(ReviewMapper::mapToReviewDto)
                 .toList();
+        log.debug(reviews.toString());
         log.info("Возвращено {} отзывов", reviews.size());
         return reviews;
     }
@@ -88,7 +89,8 @@ public class ReviewService {
                     return new NotFoundException("Отзыв с id=" + id + " не найден");
                 }
         );
-        log.debug("Найден отзыв: {}", review);
+        log.info("Найден отзыв: {}", review);
+        log.debug(review.toString());
         return ReviewMapper.mapToReviewDto(review);
     }
 

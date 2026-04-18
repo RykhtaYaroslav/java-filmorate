@@ -31,13 +31,16 @@ public class FeedService {
                 .entityId(entityId)
                 .build();
         feedRepository.addEvent(event);
-        log.debug("Добавлен ивент {}, от пользователя {} в отношении entity с id {}",
+        log.info("Добавлен ивент {}, от пользователя {} в отношении entity с id {}",
                 type.toString(), userId, entityId);
+        log.debug(event.toString());
     }
 
     public Collection<FeedDto> getFeed(Long userId) {
-        log.debug("Получение пользователем {} ленты новостей", userId);
-        return feedRepository.getEventsByUserId(userId).stream().map(FeedMapper::mapToFeed)
+        log.info("Получение пользователем {} ленты новостей", userId);
+        Collection<Event> events = feedRepository.getEventsByUserId(userId);
+        log.debug(events.toString());
+        return events.stream().map(FeedMapper::mapToFeed)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }
