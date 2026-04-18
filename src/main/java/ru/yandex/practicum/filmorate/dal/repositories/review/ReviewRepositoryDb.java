@@ -15,8 +15,6 @@ import java.util.*;
 @Repository
 public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRepository {
 
-    private final ResultSetExtractor<Set<Review>> extractor;
-
     private static final String CREATE_REVIEW_QUERY = """
             INSERT INTO reviews(content, is_positive, user_id, film_id, useful)
             VALUES (?, ?, ?, ?, ?);
@@ -35,20 +33,18 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM reviews";
 
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE id = ? ORDER BY useful";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE id = ? ORDER BY useful DESC";
 
     private static final String ADD_REACTION_QUERY = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
 
     private static final String DECREASE_REACTION_QUERY = "UPDATE reviews SET useful = useful - ? WHERE id = ?";
 
-    public ReviewRepositoryDb(JdbcTemplate jdbc, RowMapper<Review> mapper, ResultSetExtractor<Set<Review>> extractor) {
+    public ReviewRepositoryDb(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);
-        this.extractor = extractor;
     }
 
     @Override
-    public Review create(ReviewCreateRequest request) {
-        var review = ReviewMapper.mapToReview(request);
+    public Review create(Review review) {
         long id = insert(
                 CREATE_REVIEW_QUERY,
                 review.getContent(),
@@ -63,16 +59,16 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
     }
 
     @Override
-    public Review update(ReviewUpdateRequest request) {
+    public Review update(Review review) {
         update(
             UPDATE_REVIEW_QUERY,
-            request.getContent(),
-            request.getIsPositive(),
-            request.getUserId(),
-            request.getFilmId(),
-            request.getReviewId()
+            review.getContent(),
+            review.getIsPositive(),
+            review.getUserId(),
+            review.getFilmId(),
+            review.getId()
         );
-        return ReviewMapper.mapToReview(request);
+        return review;
     }
 
     @Override
@@ -96,7 +92,7 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
             params.add(count);
         }
 
-        return findMany(query.toString(), extractor, params.toArray());
+        return jdbc.query(query.toString(), mapper, params.toArray());
     }
 
     @Override

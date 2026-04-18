@@ -18,33 +18,27 @@ import java.util.Collection;
 @RequestMapping("/reviews")
 @RequiredArgsConstructor
 @Validated
-@Slf4j
 public class ReviewController {
 
     private final ReviewService service;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Collection<ReviewDto> getAll(@RequestParam(required = false) Long filmId, @RequestParam(required = false) Long count) {
         return service.getAll(filmId, count);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ReviewDto getById(@PathVariable(required = false) Long id) {
-        log.debug("");
         return service.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReviewDto create(@RequestBody @NotNull ReviewCreateRequest request) {
-        ReviewDto created = service.create(request);
-        return created;
+        return service.create(request);
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     public ReviewDto update(@RequestBody @NotNull ReviewUpdateRequest request) {
         return service.update(request);
     }
@@ -56,19 +50,16 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.OK)
     public void addLike(@PathVariable @Positive @NotNull Long id, @PathVariable @Positive @NotNull Long userId) {
         service.addLike(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
-    @ResponseStatus(HttpStatus.OK)
     public void addDislike(@PathVariable @Positive @NotNull Long id, @PathVariable @Positive @NotNull Long userId) {
         service.addDislike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.OK)
     public void removeReaction(@PathVariable @Positive @NotNull Long id, @PathVariable @Positive @NotNull Long userId) {
         service.removeReaction(id, userId);
     }
