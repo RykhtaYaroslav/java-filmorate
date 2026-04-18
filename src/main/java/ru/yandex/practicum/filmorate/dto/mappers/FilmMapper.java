@@ -122,6 +122,8 @@ public final class FilmMapper {
                     .map(DirectorMapper::mapToDirectorForFilm)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             film.setDirectors(directors);
+        } else {
+            film.setDirectors(new LinkedHashSet<>());
         }
     }
 }
