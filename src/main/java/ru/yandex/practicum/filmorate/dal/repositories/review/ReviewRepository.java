@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.dal.repositories.review;
 
-import ru.yandex.practicum.filmorate.dto.review.ReviewCreateRequest;
-import ru.yandex.practicum.filmorate.dto.review.ReviewUpdateRequest;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Collection;
@@ -9,9 +7,9 @@ import java.util.Optional;
 
 public interface ReviewRepository {
 
-    Review create(ReviewCreateRequest review);
+    Review create(Review review);
 
-    Review update(ReviewUpdateRequest review);
+    Review update(Review review);
 
     void delete(Long id);
 
