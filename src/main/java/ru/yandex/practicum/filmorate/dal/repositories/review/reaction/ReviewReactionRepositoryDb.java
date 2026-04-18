@@ -23,8 +23,8 @@ public class ReviewReactionRepositoryDb implements ReviewReactionRepository {
             """;
 
     private static final String UPDATE_REACTION_QUERY = """
-            UPDATE reviews_likes SET
-            is_positive = COALESCE(?, is_positive)
+            UPDATE reviews_likes
+            SET is_positive = COALESCE(?, is_positive)
             WHERE review_id = ? AND user_id = ?
             """;
 

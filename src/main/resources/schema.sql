@@ -100,8 +100,8 @@ CREATE TABLE IF NOT EXISTS events (
     event_timestamp       BIGINT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (event_type_id) REFERENCES types(id) ON DELETE CASCADE,
-    FOREIGN KEY (operation_type_id) REFERENCES operations(id) ON DELETE CASCADE
+    FOREIGN KEY (event_type_id) REFERENCES event_types(id) ON DELETE CASCADE,
+    FOREIGN KEY (operation_type_id) REFERENCES event_operations(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reviews (

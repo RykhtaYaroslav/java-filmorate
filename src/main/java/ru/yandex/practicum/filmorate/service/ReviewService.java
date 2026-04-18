@@ -34,7 +34,7 @@ public class ReviewService {
         userService.findById(request.getUserId());
         filmService.findById(request.getFilmId());
 
-        Review created = reviewRepository.create(request);
+        Review created = reviewRepository.create(ReviewMapper.mapToReview(request));
         log.info("Отзыв для фильма id={} от пользователя id={} успешно создан с id={}",
                 request.getFilmId(), request.getUserId(), created.getId());
         feedService.addEvent(request.getUserId(), EventType.REVIEW, EventOperation.ADD, created.getId());
@@ -44,7 +44,7 @@ public class ReviewService {
     public ReviewDto update(ReviewUpdateRequest request) {
         log.debug("Запрос на обновление отзыва id={}", request.getReviewId());
 
-        Review updated = reviewRepository.update(request);
+        Review updated = reviewRepository.update(ReviewMapper.mapToReview(request));
         log.info("Отзыв id={} успешно обновлен", updated.getId());
         feedService.addEvent(request.getUserId(), EventType.REVIEW, EventOperation.UPDATE, updated.getId());
         return findById(updated.getId());
