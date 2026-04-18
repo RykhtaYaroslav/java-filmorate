@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -57,5 +58,12 @@ public class ErrorHandler {
     public ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.warn(String.format("Missing request body: %s", e.getMessage()));
         return new ErrorResponse("Тело запроса отсутствует");
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleConstraintViolationException(final ConstraintViolationException e) {
+        log.error("Ошибка валидации параметра: {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 }

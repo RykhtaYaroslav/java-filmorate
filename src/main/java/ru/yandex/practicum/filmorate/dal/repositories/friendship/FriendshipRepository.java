@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal.repositories.friendship;
 
 import ru.yandex.practicum.filmorate.model.Friendship;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -15,5 +16,5 @@ public interface FriendshipRepository {
 
     Map<Long, Set<Long>> getFriends();
 
-    Set<Long> getFriends(Long userId);
+    Collection<Long> getFriends(Long userId);
 }

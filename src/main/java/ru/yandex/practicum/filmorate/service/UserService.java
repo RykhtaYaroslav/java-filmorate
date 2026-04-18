@@ -117,20 +117,20 @@ public class UserService {
         log.debug("Запрос на получение друзей пользователя id={}", id);
         checkUserExist(id);
 
-        Set<Long> friendIds = friendshipRepository.getFriends(id);
+        Collection<Long> friendIds = friendshipRepository.getFriends(id);
         if (friendIds.isEmpty()) {
             log.info("У пользователя id={} нет друзей", id);
             return Collections.emptyList();
         }
 
-        Set<User> friendUsers = friendIds.stream()
+        Collection<User> friendUsers = friendIds.stream()
                 .map(userStorage::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         log.info("У пользователя id={} найдено {} друзей", id, friendUsers.size());
-        return friendUsers.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
+        return friendUsers.stream().map(UserMapper::mapToUserDto).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Collection<UserDto> getCommonFriends(Long id, Long otherId) {
@@ -138,8 +138,8 @@ public class UserService {
         checkUserExist(id);
         checkUserExist(otherId);
 
-        Set<Long> idFriends = friendshipRepository.getFriends(id);
-        Set<Long> otherIdFriends = friendshipRepository.getFriends(otherId);
+        Collection<Long> idFriends = friendshipRepository.getFriends(id);
+        Collection<Long> otherIdFriends = friendshipRepository.getFriends(otherId);
 
         Set<Long> commonFriendIds = idFriends.stream()
                 .filter(otherIdFriends::contains)

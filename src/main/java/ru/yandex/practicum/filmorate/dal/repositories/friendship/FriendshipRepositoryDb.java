@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class FriendshipRepositoryDb implements FriendshipRepository {
             SELECT friend_id
             FROM user_friends
             WHERE user_id = ?
+            ORDER BY friend_id
             """;
 
     @Override
@@ -97,7 +99,7 @@ public class FriendshipRepositoryDb implements FriendshipRepository {
     }
 
     @Override
-    public Set<Long> getFriends(Long userId) {
+    public Collection<Long> getFriends(Long userId) {
         return new HashSet<>(jdbc.query(GET_FRIENDS_BY_USER_ID_QUERY, (rs, rowNum) -> rs.getLong("friend_id"), userId));
     }
 }
