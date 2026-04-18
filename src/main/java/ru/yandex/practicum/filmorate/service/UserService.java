@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendshipRepository friendshipRepository;
+    private final FeedService feedService;
 
     public UserDto create(UserCreateRequest userCreateRequest) {
         log.debug("Запрос на создание пользователя: {}", userCreateRequest);
@@ -96,7 +99,7 @@ public class UserService {
         checkUserExist(toUserId);
 
         Friendship friendship = friendshipRepository.sendFriendshipRequest(new Friendship(fromUserId, toUserId));
-
+        feedService.addEvent(fromUserId, EventType.FRIEND, EventOperation.ADD, toUserId);
         log.info("Пользователь id={} успешно отправил заявку в друзья пользователю id={}", fromUserId, toUserId);
         return friendship;
     }
@@ -106,7 +109,7 @@ public class UserService {
         checkUserExist(userId);
         checkUserExist(friendId);
         friendshipRepository.deleteFriendship(new Friendship(userId, friendId));
-
+        feedService.addEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
         log.info("Пользователь id={} успешно удалил из друзей пользователя id={}", userId, friendId);
     }
 

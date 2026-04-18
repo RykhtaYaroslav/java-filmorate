@@ -15,6 +15,8 @@ import ru.yandex.practicum.filmorate.exceptions.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
 import java.util.Collection;
@@ -36,6 +38,7 @@ public class FilmService {
     private final LikeRepository likeRepository;
     private final DirectorRepository directorRepository;
     private final UserService userService;
+    private final FeedService feedService;
 
     private static final int MPA_RATINGS_AMOUNT = 5;
     private static final int GENRES_AMOUNT = 6;
@@ -117,6 +120,7 @@ public class FilmService {
 
         likeRepository.addLike(filmId, userId);
         log.info("Пользователь id={} успешно поставил лайк фильму id={}", userId, filmId);
+        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
         return findById(filmId);
     }
 
@@ -125,6 +129,7 @@ public class FilmService {
 
         likeRepository.deleteLike(filmId, userId);
         log.info("Пользователь id={} успешно удалил лайк с фильма id={}", userId, filmId);
+        feedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
         return findById(filmId);
     }
 
