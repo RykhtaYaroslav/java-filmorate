@@ -17,11 +17,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventOperation;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -127,7 +123,8 @@ public class UserService {
                 .map(userStorage::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         log.info("У пользователя id={} найдено {} друзей", id, friendUsers.size());
         return friendUsers.stream().map(UserMapper::mapToUserDto).collect(Collectors.toSet());
