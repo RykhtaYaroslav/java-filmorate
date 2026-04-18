@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -306,6 +307,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         Set<Film> userLikedFilms = findMany(FIND_LIKED_FILMS, extractor, userId);
         Set<Film> friendLikedFilms = findMany(FIND_LIKED_FILMS, extractor, friendId);
 
-        return userLikedFilms.stream().filter(friendLikedFilms::contains).collect(Collectors.toSet());
+        return userLikedFilms.stream()
+                .filter(friendLikedFilms::contains)
+                .sorted(Comparator.comparing(Film::getId))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

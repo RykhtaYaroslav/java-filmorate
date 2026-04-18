@@ -23,7 +23,7 @@ public class FeedRepositoryDb extends BaseStorage<Event> implements FeedReposito
             SELECT *
             FROM events e
             WHERE e.user_id = ?
-            ORDER BY e.event_timestamp ASC;
+            ORDER BY e.event_timestamp ASC, e.event_id ASC;
             """;
 
     @Override

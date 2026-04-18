@@ -43,10 +43,19 @@ public class ReviewService {
 
     public ReviewDto update(ReviewUpdateRequest request) {
         log.debug("Запрос на обновление отзыва id={}", request.getReviewId());
+        ReviewDto reviewInDb = findById(request.getReviewId());
+        Review reviewToUpdate = new Review();
+        reviewToUpdate.setId(request.getReviewId());
+        reviewToUpdate.setContent(request.getContent());
+        reviewToUpdate.setIsPositive(request.getIsPositive());
+        // По контракту update не должен переносить отзыв на другого пользователя/фильм.
+        reviewToUpdate.setUserId(reviewInDb.getUserId());
+        reviewToUpdate.setFilmId(reviewInDb.getFilmId());
+        reviewToUpdate.setUseful(reviewInDb.getUseful());
 
-        Review updated = reviewRepository.update(ReviewMapper.mapToReview(request));
+        Review updated = reviewRepository.update(reviewToUpdate);
         log.info("Отзыв id={} успешно обновлен", updated.getId());
-        feedService.addEvent(request.getUserId(), EventType.REVIEW, EventOperation.UPDATE, updated.getId());
+        feedService.addEvent(reviewInDb.getUserId(), EventType.REVIEW, EventOperation.UPDATE, updated.getId());
         return findById(updated.getId());
     }
 
@@ -93,7 +102,6 @@ public class ReviewService {
         } else {
             log.warn("Не удалось поставить лайк отзыву id={} от пользователя id={}. Возможно, лайк уже существует или данные некорректны.", reviewId, userId);
         }
-        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, reviewId);
     }
 
     public void addDislike(Long reviewId, Long userId) {
@@ -106,7 +114,6 @@ public class ReviewService {
         } else {
             log.warn("Не удалось поставить дизлайк отзыву id={} от пользователя id={}. Возможно, дизлайк уже существует или данные некорректны.", reviewId, userId);
         }
-        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, reviewId);
     }
 
     public void removeReaction(Long reviewId, Long userId) {
@@ -117,8 +124,7 @@ public class ReviewService {
             reviewRepository.decreaseUseful(reviewId, (long) deletedRows);
             log.info("Пользователь id={} успешно удалил реакцию с отзыва id={}", userId, reviewId);
         } else {
-            log.warn("Не удалось удалить реакцию с отзыва id={} от пользователя id={}. Возможно, реакции не было или данные некорректны.", reviewId, userId);
+            throw new NotFoundException(String.format("Реакция пользователя %d для отзыва %d не найдена", userId, reviewId));
         }
-        feedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, reviewId);
     }
 }
