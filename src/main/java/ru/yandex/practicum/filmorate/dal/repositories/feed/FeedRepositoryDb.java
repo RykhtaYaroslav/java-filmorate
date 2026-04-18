@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.dal.repositories.feed;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.mappers.feed.FeedRowMapper;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.model.Event;
 
@@ -10,8 +10,8 @@ import java.util.Collection;
 
 @Repository
 public class FeedRepositoryDb extends BaseStorage<Event> implements FeedRepository {
-    public FeedRepositoryDb(JdbcTemplate jdbc) {
-        super(jdbc, new FeedRowMapper());
+    public FeedRepositoryDb(JdbcTemplate jdbc, RowMapper<Event> mapper) {
+        super(jdbc, mapper);
     }
 
     private static final String INSERT_EVENT = """
@@ -20,13 +20,7 @@ public class FeedRepositoryDb extends BaseStorage<Event> implements FeedReposito
             """;
 
     private static final String FIND_USER_FRIENDS_EVENTS = """
-            SELECT
-            e.event_id,
-            e.event_timestamp,
-            e.user_id,
-            e.event_type_id,
-            e.operation_type_id,
-            e.entity_id
+            SELECT *
             FROM events e
             WHERE e.user_id = ?
             ORDER BY e.event_timestamp ASC;
