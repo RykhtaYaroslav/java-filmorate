@@ -13,12 +13,12 @@ MERGE INTO genres (id, name) KEY(id) VALUES
 (5, 'Документальный'),
 (6, 'Боевик');
 
-MERGE INTO types (id, name) KEY(id) VALUES
+MERGE INTO event_types (id, name) KEY(id) VALUES
 (1, 'LIKE'),
 (2, 'REVIEW'),
 (3, 'FRIEND');
 
-MERGE INTO operations (id, name) KEY(id) VALUES
+MERGE INTO event_operations (id, name) KEY(id) VALUES
 (1, 'ADD'),
 (2, 'REMOVE'),
 (3, 'UPDATE');

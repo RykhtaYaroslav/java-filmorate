@@ -81,12 +81,12 @@ CREATE TABLE IF NOT EXISTS film_likes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS types (
+CREATE TABLE IF NOT EXISTS event_types (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS operations (
+CREATE TABLE IF NOT EXISTS event_operations (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
@@ -100,8 +100,8 @@ CREATE TABLE IF NOT EXISTS events (
     event_timestamp       BIGINT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (event_type_id) REFERENCES types(id) ON DELETE CASCADE,
-    FOREIGN KEY (operation_type_id) REFERENCES operations(id) ON DELETE CASCADE
+    FOREIGN KEY (event_type_id) REFERENCES event_types(id) ON DELETE CASCADE,
+    FOREIGN KEY (operation_type_id) REFERENCES event_operations(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reviews (
