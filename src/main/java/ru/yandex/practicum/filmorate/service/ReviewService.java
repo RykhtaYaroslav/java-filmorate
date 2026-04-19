@@ -37,7 +37,7 @@ public class ReviewService {
         Review created = reviewRepository.create(ReviewMapper.mapToReview(request));
         log.info("Отзыв для фильма id={} от пользователя id={} успешно создан с id={}",
                 request.getFilmId(), request.getUserId(), created.getId());
-        feedService.addEvent(request.getUserId(), EventType.REVIEW, EventOperation.ADD, created.getId());
+        feedService.addEvent(created.getUserId(), EventType.REVIEW, EventOperation.ADD, created.getId());
         return findById(created.getId());
     }
 
@@ -48,7 +48,6 @@ public class ReviewService {
         reviewToUpdate.setId(request.getReviewId());
         reviewToUpdate.setContent(request.getContent());
         reviewToUpdate.setIsPositive(request.getIsPositive());
-        // По контракту update не должен переносить отзыв на другого пользователя/фильм.
         reviewToUpdate.setUserId(reviewInDb.getUserId());
         reviewToUpdate.setFilmId(reviewInDb.getFilmId());
         reviewToUpdate.setUseful(reviewInDb.getUseful());

@@ -113,11 +113,9 @@ public class FilmService {
 
     public FilmDto addLike(Long filmId, Long userId) {
         log.debug("Запрос от пользователя id={} на добавление лайка фильму id={}", userId, filmId);
-        boolean isAdded = likeRepository.addLike(filmId, userId);
+        feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        likeRepository.addLike(filmId, userId);
 
-        if (isAdded) {
-            feedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
-        }
         log.info("Пользователь id={} успешно поставил лайк фильму id={}", userId, filmId);
         return findById(filmId);
     }
