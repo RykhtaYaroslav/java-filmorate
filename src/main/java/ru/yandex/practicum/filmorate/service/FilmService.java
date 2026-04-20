@@ -50,11 +50,7 @@ public class FilmService {
 
         Film film = filmStorage.create(FilmMapper.mapToFilm(filmCreateRequest));
 
-        Collection<Director> directors = film.getDirectors();
-
-        if (directors != null && !directors.isEmpty()) {
-            directorRepository.setDirectorsToFilm(film.getId(), directors);
-        }
+        saveFilmGenresAndDirectors(film);
 
         log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
         return findById(film.getId());
@@ -64,9 +60,8 @@ public class FilmService {
         log.debug("Запрос на обновление фильма id={}", filmUpdateRequest.getId());
 
         Film film = filmStorage.update(FilmMapper.mapToFilm(filmUpdateRequest));
-        directorRepository.updateFilmDirectors(film);
 
-
+        updateFilmGenresAndDirectors(film);
 
         log.info("Данные фильма id={} успешно обновлены", film.getId());
         return findById(film.getId());
@@ -230,5 +225,37 @@ public class FilmService {
                     });
         }
         log.debug("Валидация фильма {} прошла успешно", filmCreateRequest.getName());
+    }
+
+    private void saveFilmGenresAndDirectors(Film film) {
+
+        if (film.getGenres() != null) {
+            filmGenreRepository.addGenres(film.getId(), film.getGenres());
+        }
+
+        Collection<Director> directors = film.getDirectors();
+
+        if (directors != null && !directors.isEmpty()) {
+            directorRepository.setDirectorsToFilm(film.getId(), directors);
+        }
+    }
+
+    private void updateFilmGenresAndDirectors(Film film) {
+        Collection<Director> directors = film.getDirectors();
+
+        if (directors != null) {
+            directorRepository.deleteFilmDirectors(film.getId());
+
+            if (!directors.isEmpty()) {
+                directorRepository.setDirectorsToFilm(film.getId(), directors);
+            }
+        }
+
+        if (film.getGenres() != null) {
+            filmGenreRepository.deleteGenres(film.getId());
+            if (!film.getGenres().isEmpty()) {
+                filmGenreRepository.addGenres(film.getId(), film.getGenres());
+            }
+        }
     }
 }

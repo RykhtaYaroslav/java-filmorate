@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmExtractor;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
-import ru.yandex.practicum.filmorate.dal.repositories.genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
-    private final FilmGenreRepository filmGenreRepository;
     private final FilmExtractor extractor;
 
     private static final String FIND_BY_ID_QUERY = """
@@ -127,9 +125,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY COUNT(DISTINCT fl.user_id) DESC
             """;
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor, FilmGenreRepository filmGenreRepository) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor) {
         super(jdbc, mapper);
-        this.filmGenreRepository = filmGenreRepository;
         this.extractor = extractor;
     }
 
@@ -143,9 +140,6 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 film.getRating() != null ? film.getRating().getId() : null);
 
         film.setId(id);
-        if (film.getGenres() != null) {
-            filmGenreRepository.addGenres(id, film.getGenres());
-        }
 
         return film;
     }
@@ -266,12 +260,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     }
 
     private void updateGenres(Film film) {
-        if (film.getGenres() != null) {
-            filmGenreRepository.deleteGenres(film.getId());
-            if (!film.getGenres().isEmpty()) {
-                filmGenreRepository.addGenres(film.getId(), film.getGenres());
-            }
-        }
+
     }
 
     @Override
