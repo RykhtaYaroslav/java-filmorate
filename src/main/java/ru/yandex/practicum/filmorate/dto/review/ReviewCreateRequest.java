@@ -8,14 +8,14 @@ import lombok.Data;
 public class ReviewCreateRequest {
 
     @NotBlank(message = "содержимое не может быть пустым")
-    String content;
+    private String content;
 
     @NotNull(message = "реакция не может быть null")
-    Boolean isPositive;
+    private Boolean isPositive;
 
     @NotNull(message = "userId не может быть null")
-    Long userId;
+    private Long userId;
 
     @NotNull(message = "filmId не может быть null")
-    Long filmId;
+    private Long filmId;
 }
