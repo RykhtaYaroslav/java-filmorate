@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.repositories.review.ReviewRepositoryDb;
-import ru.yandex.practicum.filmorate.dal.repositories.review.reaction.ReviewReactionRepositoryDb;
+import ru.yandex.practicum.filmorate.dal.repositories.review.ReviewDbRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.review.reaction.ReviewReactionDbRepository;
 import ru.yandex.practicum.filmorate.dto.mappers.ReviewMapper;
 import ru.yandex.practicum.filmorate.dto.review.ReviewCreateRequest;
 import ru.yandex.practicum.filmorate.dto.review.ReviewDto;
@@ -22,8 +22,8 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepositoryDb reviewRepository;
-    private final ReviewReactionRepositoryDb reviewReactionRepository;
+    private final ReviewDbRepository reviewRepository;
+    private final ReviewReactionDbRepository reviewReactionRepository;
     private final UserService userService;
     private final FilmService filmService;
     private final FeedService feedService;

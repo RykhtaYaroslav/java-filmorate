@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmExtractor;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
+public class FilmDbRepository extends BaseRepository<Film> implements FilmRepository {
     private final FilmExtractor extractor;
 
     private static final String FIND_BY_ID_QUERY = """
@@ -125,7 +125,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY COUNT(DISTINCT fl.user_id) DESC
             """;
 
-    public FilmDbStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<Film> mapper, FilmExtractor extractor) {
+    public FilmDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<Film> mapper, FilmExtractor extractor) {
         super(namedJdbc, mapper);
         this.extractor = extractor;
     }

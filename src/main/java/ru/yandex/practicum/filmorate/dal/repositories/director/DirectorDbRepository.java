@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.director.DirectorBatchSetter;
 import ru.yandex.practicum.filmorate.dal.mappers.director.DirectorExtractor;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public class DirectorRepositoryDb extends BaseStorage<Director> implements DirectorRepository {
+public class DirectorDbRepository extends BaseRepository<Director> implements DirectorRepository {
     private final DirectorExtractor extractor;
 
     private static final String FIND_ALL_QUERY = """
@@ -69,7 +69,7 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
             WHERE film_id = ?
             """;
 
-    public DirectorRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Director> mapper, DirectorExtractor extractor) {
+    public DirectorDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<Director> mapper, DirectorExtractor extractor) {
         super(namedJdbc, mapper);
         this.extractor = extractor;
     }

@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-public class UserDbStorage extends BaseStorage<User> implements UserStorage {
+public class UserDbRepository extends BaseRepository<User> implements UserRepository {
     private final ResultSetExtractor<Set<User>> extractor;
 
     private static final String CREATE_USER_QUERY = """
@@ -61,7 +61,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             WHERE f.user_id = ?
             """;
 
-    public UserDbStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<User> mapper, ResultSetExtractor<Set<User>> extractor) {
+    public UserDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<User> mapper, ResultSetExtractor<Set<User>> extractor) {
         super(namedJdbc, mapper);
         this.extractor = extractor;
     }

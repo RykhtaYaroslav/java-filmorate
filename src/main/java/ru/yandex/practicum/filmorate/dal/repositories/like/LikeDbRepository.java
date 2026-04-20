@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.like.LikeExtractor;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Like;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
-public class LikeRepositoryDb extends BaseStorage<Like> implements LikeRepository {
+public class LikeDbRepository extends BaseRepository<Like> implements LikeRepository {
     private final LikeExtractor extractor;
 
     private static final String ADD_LIKE_QUERY = """
@@ -43,7 +43,7 @@ public class LikeRepositoryDb extends BaseStorage<Like> implements LikeRepositor
             WHERE film_id IN (:filmIds)
             """;
 
-    public LikeRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Like> mapper, LikeExtractor extractor) {
+    public LikeDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<Like> mapper, LikeExtractor extractor) {
         super(namedJdbc, mapper);
         this.extractor = extractor;
     }

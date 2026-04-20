@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.repositories.director.DirectorRepository;
-import ru.yandex.practicum.filmorate.dal.repositories.film.FilmStorage;
-import ru.yandex.practicum.filmorate.dal.repositories.genre.FilmGenreRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.film.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.repositories.genre.GenreRepository;
 import ru.yandex.practicum.filmorate.dal.repositories.like.LikeRepository;
 import ru.yandex.practicum.filmorate.dto.film.FilmCreateRequest;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final FilmGenreRepository filmGenreRepository;
+    private final FilmRepository filmRepository;
+    private final GenreRepository genreRepository;
     private final LikeRepository likeRepository;
     private final DirectorRepository directorRepository;
     private final UserService userService;
@@ -48,7 +48,7 @@ public class FilmService {
         log.debug("Запрос на создание фильма: {}", filmCreateRequest);
         validateFilm(filmCreateRequest);
 
-        Film film = filmStorage.create(FilmMapper.mapToFilm(filmCreateRequest));
+        Film film = filmRepository.create(FilmMapper.mapToFilm(filmCreateRequest));
 
         saveFilmGenresAndDirectors(film);
 
@@ -59,7 +59,7 @@ public class FilmService {
     public FilmDto update(FilmUpdateRequest filmUpdateRequest) {
         log.debug("Запрос на обновление фильма id={}", filmUpdateRequest.getId());
 
-        Film film = filmStorage.update(FilmMapper.mapToFilm(filmUpdateRequest));
+        Film film = filmRepository.update(FilmMapper.mapToFilm(filmUpdateRequest));
 
         updateFilmGenresAndDirectors(film);
 
@@ -70,7 +70,7 @@ public class FilmService {
     public void delete(Long id) {
         log.debug("Запрос на удаление фильма id={}", id);
 
-        filmStorage.delete(id);
+        filmRepository.delete(id);
 
         log.info("Фильм id={} успешно удалён", id);
     }
@@ -78,7 +78,7 @@ public class FilmService {
     public Collection<FilmDto> findAll() {
         log.debug("Запрос на получение всех фильмов");
 
-        Set<Film> filmSet = filmStorage.getFilms();
+        Set<Film> filmSet = filmRepository.getFilms();
 
         if (filmSet.isEmpty()) {
             log.info("Список фильмов пуст");
@@ -100,14 +100,14 @@ public class FilmService {
             throw new ConditionsNotMetException("Id не может быть null");
         }
 
-        Optional<Film> optionalFilm = filmStorage.findById(id);
+        Optional<Film> optionalFilm = filmRepository.findById(id);
 
         if (optionalFilm.isEmpty()) {
             log.warn("Фильм с id={} не найден", id);
             throw new NotFoundException("Фильм с id = " + id + " не найден");
         }
         Film film = optionalFilm.get();
-        film.setGenres(filmGenreRepository.getGenres(id));
+        film.setGenres(genreRepository.getGenres(id));
         film.setUserLikeIds(likeRepository.getLikes(id));
         film.setDirectors(new LinkedHashSet<>(directorRepository.getDirectorsByFilmId(id)));
 
@@ -138,7 +138,7 @@ public class FilmService {
 
     public Collection<FilmDto> getPopularFilms(Integer count, Integer genreId, Integer year) {
         log.debug("Запрос на получение {} самых популярных фильмов", count);
-        Collection<Film> films = filmStorage.getPopularFilms(count, genreId, year);
+        Collection<Film> films = filmRepository.getPopularFilms(count, genreId, year);
         enrichFilms(films);
 
         log.info("Возвращено {} популярных фильмов", films.size());
@@ -153,7 +153,7 @@ public class FilmService {
             throw new NotFoundException("Режиссер с id = " + directorId + " не найден");
         }
 
-        Collection<Film> films = filmStorage.getFilmsByDirector(directorId, sortBy);
+        Collection<Film> films = filmRepository.getFilmsByDirector(directorId, sortBy);
 
         enrichFilms(films);
         log.info("Возвращено {} фильмов для режиссера id={}", films.size(), directorId);
@@ -164,7 +164,7 @@ public class FilmService {
 
     public Collection<FilmDto> getFilmRecommendations(Long id) {
         log.debug("Запрос на получение рекомендованных фильмов для User {}", id);
-        Collection<Film> recommended = new ArrayList<>(filmStorage.getRecommendationFilms(id));
+        Collection<Film> recommended = new ArrayList<>(filmRepository.getRecommendationFilms(id));
         enrichFilms(recommended);
         return recommended.stream()
                 .map(FilmMapper::mapToFilmDto)
@@ -173,7 +173,7 @@ public class FilmService {
 
     public Collection<FilmDto> searchFilms(String query, String by) {
         log.debug("Запрос на поиск фильмов по запросу '{}' в полях '{}'", query, by);
-        Collection<Film> films = filmStorage.getSearchFilms(query, by);
+        Collection<Film> films = filmRepository.getSearchFilms(query, by);
         enrichFilms(films);
         return films.stream()
                 .map(FilmMapper::mapToFilmDto)
@@ -185,7 +185,7 @@ public class FilmService {
         userService.findById(userId);
         userService.findById(friendId);
 
-        Collection<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
+        Collection<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
         log.debug("Возвращено {} общих фильмов для пользователей User {} и User {}", commonFilms.size(), userId, friendId);
         enrichFilms(commonFilms);
         return commonFilms.stream().map(FilmMapper::mapToFilmDto)
@@ -195,7 +195,7 @@ public class FilmService {
     private void enrichFilms(Collection<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).toList();
 
-        Map<Long, Set<Genre>> genres = filmGenreRepository.getGenresForFilms(filmIds);
+        Map<Long, Set<Genre>> genres = genreRepository.getGenresForFilms(filmIds);
         Map<Long, Set<Long>> likes = likeRepository.getLikesForFilms(filmIds);
         Map<Long, Set<Director>> directors = directorRepository.getDirectorsForFilms(filmIds);
 
@@ -230,7 +230,7 @@ public class FilmService {
     private void saveFilmGenresAndDirectors(Film film) {
 
         if (film.getGenres() != null) {
-            filmGenreRepository.addGenres(film.getId(), film.getGenres());
+            genreRepository.addGenres(film.getId(), film.getGenres());
         }
 
         Collection<Director> directors = film.getDirectors();
@@ -252,9 +252,9 @@ public class FilmService {
         }
 
         if (film.getGenres() != null) {
-            filmGenreRepository.deleteGenres(film.getId());
+            genreRepository.deleteGenres(film.getId());
             if (!film.getGenres().isEmpty()) {
-                filmGenreRepository.addGenres(film.getId(), film.getGenres());
+                genreRepository.addGenres(film.getId(), film.getGenres());
             }
         }
     }

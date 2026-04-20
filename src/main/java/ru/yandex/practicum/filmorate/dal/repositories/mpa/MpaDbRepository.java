@@ -4,14 +4,14 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.model.enums.MpaRating;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class MpaDbStorage extends BaseStorage<MpaRating> {
+public class MpaDbRepository extends BaseRepository<MpaRating> {
     private final ResultSetExtractor<List<MpaRating>> extractor;
 
     private static final String FIND_ALL_QUERY = """
@@ -25,7 +25,7 @@ public class MpaDbStorage extends BaseStorage<MpaRating> {
             WHERE id = ?
             """;
 
-    public MpaDbStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<MpaRating> mapper, ResultSetExtractor<List<MpaRating>> extractor) {
+    public MpaDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<MpaRating> mapper, ResultSetExtractor<List<MpaRating>> extractor) {
         super(namedJdbc, mapper);
         this.extractor = extractor;
     }

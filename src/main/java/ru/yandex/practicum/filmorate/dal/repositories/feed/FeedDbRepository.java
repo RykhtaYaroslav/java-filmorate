@@ -3,13 +3,13 @@ package ru.yandex.practicum.filmorate.dal.repositories.feed;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.Collection;
 
 @Repository
-public class FeedRepositoryDb extends BaseStorage<Event> implements FeedRepository {
+public class FeedDbRepository extends BaseRepository<Event> implements FeedRepository {
     private static final String INSERT_EVENT = """
             INSERT INTO events (user_id, event_type_id, operation_type_id, entity_id, event_timestamp)
             VALUES (?, ?, ?, ?, ?)
@@ -22,7 +22,7 @@ public class FeedRepositoryDb extends BaseStorage<Event> implements FeedReposito
             ORDER BY e.event_id ASC
             """;
 
-    public FeedRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Event> mapper) {
+    public FeedDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<Event> mapper) {
         super(namedJdbc, mapper);
     }
 

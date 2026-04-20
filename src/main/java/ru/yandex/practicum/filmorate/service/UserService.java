@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.repositories.friendship.FriendshipRepository;
-import ru.yandex.practicum.filmorate.dal.repositories.user.UserStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.user.UserRepository;
 import ru.yandex.practicum.filmorate.dto.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.dto.user.UserCreateRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
@@ -17,21 +17,28 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventOperation;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final FeedService feedService;
 
     public UserDto create(UserCreateRequest userCreateRequest) {
         log.debug("Запрос на создание пользователя: {}", userCreateRequest);
 
-        User user = userStorage.create(UserMapper.mapToUser(userCreateRequest));
+        User user = userRepository.create(UserMapper.mapToUser(userCreateRequest));
 
         log.info("Пользователь {} (id={}) успешно создан", user.getLogin(), user.getId());
         return UserMapper.mapToUserDto(user);
@@ -40,7 +47,7 @@ public class UserService {
     public UserDto update(UserUpdateRequest userUpdateRequest) {
         log.debug("Запрос на обновление пользователя id={}", userUpdateRequest.getId());
 
-        User user = userStorage.update(UserMapper.mapToUser(userUpdateRequest));
+        User user = userRepository.update(UserMapper.mapToUser(userUpdateRequest));
 
         log.info("Данные пользователя id={} успешно обновлены", user.getId());
         return UserMapper.mapToUserDto(user);
@@ -49,14 +56,14 @@ public class UserService {
     public void delete(Long id) {
         log.debug("Запрос на удаление пользователя id={}", id);
 
-        userStorage.delete(id);
+        userRepository.delete(id);
 
         log.info("Пользователь id={} успешно удалён", id);
     }
 
     public Collection<UserDto> findAll() {
         log.debug("Запрос на получение всех пользователей");
-        Collection<User> users = userStorage.getUsers();
+        Collection<User> users = userRepository.getUsers();
         if (users.isEmpty()) {
             log.info("Список пользователей пуст");
             return Collections.emptyList();
@@ -71,7 +78,7 @@ public class UserService {
             throw new ConditionsNotMetException("Id не может быть null");
         }
 
-        Optional<User> optionalUser = userStorage.findById(id);
+        Optional<User> optionalUser = userRepository.findById(id);
 
         if (optionalUser.isEmpty()) {
             log.warn("Пользователь с id={} не найден", id);
@@ -124,7 +131,7 @@ public class UserService {
         }
 
         List<UserDto> friends = friendIds.stream()
-                .map(userStorage::findById)
+                .map(userRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .sorted(Comparator.comparing(User::getId))
@@ -154,7 +161,7 @@ public class UserService {
         }
 
         List<UserDto> commonFriends = commonFriendIds.stream()
-                .map(userStorage::findById)
+                .map(userRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(UserMapper::mapToUserDto)
@@ -166,7 +173,7 @@ public class UserService {
 
     private void checkUserExist(Long id) {
         log.debug("Проверка существования пользователя с id={}", id);
-        if (userStorage.findById(id).isEmpty()) {
+        if (userRepository.findById(id).isEmpty()) {
             log.warn("Пользователь с id={} не найден в хранилище", id);
             throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
         }

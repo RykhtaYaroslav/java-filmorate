@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class BaseStorage<T> {
+public class BaseRepository<T> {
     protected final NamedParameterJdbcTemplate namedJdbc;
     protected final JdbcOperations jdbc;
     protected final RowMapper<T> mapper;
 
-    public BaseStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<T> mapper) {
+    public BaseRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<T> mapper) {
         this.namedJdbc = namedJdbc;
         this.mapper = mapper;
         this.jdbc = namedJdbc.getJdbcOperations();

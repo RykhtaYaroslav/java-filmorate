@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class ReviewReactionRepositoryDb implements ReviewReactionRepository {
+public class ReviewReactionDbRepository implements ReviewReactionRepository {
 
     private final JdbcTemplate jdbc;
 

@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-public interface UserStorage {
+public interface UserRepository {
     User create(User user);
 
     User update(User user);

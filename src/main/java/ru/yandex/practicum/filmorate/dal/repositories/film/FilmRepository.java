@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-public interface FilmStorage {
+public interface FilmRepository {
     Film create(Film film);
 
     Film update(Film film);

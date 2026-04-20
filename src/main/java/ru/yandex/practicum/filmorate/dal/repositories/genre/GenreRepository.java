@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public interface FilmGenreRepository {
+public interface GenreRepository {
     void addGenres(Long filmId, Set<Genre> genres);
 
     void deleteGenres(Long filmId);

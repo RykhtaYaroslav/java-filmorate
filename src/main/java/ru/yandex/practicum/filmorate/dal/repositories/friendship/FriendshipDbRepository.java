@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public class FriendshipRepositoryDb extends BaseStorage<Friendship> implements FriendshipRepository {
+public class FriendshipDbRepository extends BaseRepository<Friendship> implements FriendshipRepository {
     private final FriendshipRowMapper friendshipRowMapper;
 
     private static final String SEND_FRIENDSHIP_REQUEST = """
@@ -44,7 +44,7 @@ public class FriendshipRepositoryDb extends BaseStorage<Friendship> implements F
             WHERE user_id = ?
             """;
 
-    public FriendshipRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Friendship> mapper, FriendshipRowMapper friendshipRowMapper) {
+    public FriendshipDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<Friendship> mapper, FriendshipRowMapper friendshipRowMapper) {
         super(namedJdbc, mapper);
         this.friendshipRowMapper = friendshipRowMapper;
     }

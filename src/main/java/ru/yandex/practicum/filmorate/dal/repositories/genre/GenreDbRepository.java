@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.film.GenreBatchSetter;
-import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseRepository;
 import ru.yandex.practicum.filmorate.model.enums.Genre;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public class FilmGenreRepositoryDb extends BaseStorage<Genre> implements FilmGenreRepository {
+public class GenreDbRepository extends BaseRepository<Genre> implements GenreRepository {
     private static final String ADD_GENRES_QUERY = """
             INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)
             """;
@@ -51,7 +51,7 @@ public class FilmGenreRepositoryDb extends BaseStorage<Genre> implements FilmGen
             SELECT * FROM genres WHERE id = ?
             """;
 
-    public FilmGenreRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Genre> mapper) {
+    public GenreDbRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<Genre> mapper) {
         super(namedJdbc, mapper);
     }
 
