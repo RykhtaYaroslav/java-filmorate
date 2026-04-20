@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.repositories.director;
 
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.Map;
@@ -23,4 +24,6 @@ public interface DirectorRepository {
     Collection<Director> getDirectorsByFilmId(Long filmId);
 
     Map<Long, Set<Director>> getDirectorsForFilms(Collection<Long> filmIds);
+
+    void updateFilmDirectors(Film film);
 }

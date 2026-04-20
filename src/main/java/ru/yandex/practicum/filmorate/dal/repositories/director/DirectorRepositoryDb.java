@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dal.mappers.director.DirectorBatchSetter;
 import ru.yandex.practicum.filmorate.dal.mappers.director.DirectorExtractor;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,6 +66,12 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
             WHERE fd.film_id IN (:filmIds)
             """;
 
+    private static final String DELETE_FILM_DIRECTORS_QUERY = """
+            DELETE
+            FROM film_directors
+            WHERE film_id = ?
+            """;
+
     public DirectorRepositoryDb(JdbcTemplate jdbc, RowMapper<Director> mapper, DirectorExtractor extractor, NamedParameterJdbcTemplate namedJdbc) {
         super(jdbc, mapper);
         this.extractor = extractor;
@@ -116,5 +123,17 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
         Map<String, Collection<Long>> params = Map.of("filmIds", filmIds);
 
         return namedJdbc.query(GET_DIRECTORS_FOR_FILMS_QUERY, params, extractor);
+    }
+
+    @Override
+    public void updateFilmDirectors(Film film) {
+        Collection<Director> directors = film.getDirectors();
+
+        if (directors != null) {
+            jdbc.update(DELETE_FILM_DIRECTORS_QUERY, film.getId());
+            if (!directors.isEmpty()) {
+                setDirectorsToFilm(film.getId(), directors);
+            }
+        }
     }
 }

@@ -50,6 +50,12 @@ public class FilmService {
 
         Film film = filmStorage.create(FilmMapper.mapToFilm(filmCreateRequest));
 
+        Collection<Director> directors = film.getDirectors();
+
+        if (directors != null && !directors.isEmpty()) {
+            directorRepository.setDirectorsToFilm(film.getId(), directors);
+        }
+
         log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
         return findById(film.getId());
     }
@@ -58,6 +64,9 @@ public class FilmService {
         log.debug("Запрос на обновление фильма id={}", filmUpdateRequest.getId());
 
         Film film = filmStorage.update(FilmMapper.mapToFilm(filmUpdateRequest));
+        directorRepository.updateFilmDirectors(film);
+
+
 
         log.info("Данные фильма id={} успешно обновлены", film.getId());
         return findById(film.getId());
