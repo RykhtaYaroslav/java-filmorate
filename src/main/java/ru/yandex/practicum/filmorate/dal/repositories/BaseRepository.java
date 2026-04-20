@@ -1,0 +1,80 @@
+package ru.yandex.practicum.filmorate.dal.repositories;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import ru.yandex.practicum.filmorate.exceptions.DatabaseException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+public class BaseRepository<T> {
+    protected final NamedParameterJdbcTemplate namedJdbc;
+    protected final JdbcOperations jdbc;
+    protected final RowMapper<T> mapper;
+
+    public BaseRepository(NamedParameterJdbcTemplate namedJdbc, RowMapper<T> mapper) {
+        this.namedJdbc = namedJdbc;
+        this.mapper = mapper;
+        this.jdbc = namedJdbc.getJdbcOperations();
+    }
+
+    protected Optional<T> findOne(String query, Object... params) {
+        try {
+            T result = jdbc.queryForObject(query, mapper, params);
+            return Optional.ofNullable(result);
+        } catch (DataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    protected List<T> findMany(String query, ResultSetExtractor<List<T>> rs) {
+        return jdbc.query(query, rs);
+    }
+
+    protected Set<T> findMany(String query, ResultSetExtractor<Set<T>> rs, Object... params) {
+        return jdbc.query(query, rs, params);
+    }
+
+    protected Collection<T> findMany(String query, RowMapper<T> mapper, Object... params) {
+        return jdbc.query(query, mapper, params);
+    }
+
+    protected boolean delete(String query, Object... params) {
+        return jdbc.update(query, params) > 0;
+    }
+
+    protected void update(String query, Object... params) {
+        int rowsUpdated = jdbc.update(query, params);
+        if (rowsUpdated == 0) {
+            throw new NotFoundException("Сущность для обновления не найдена или данные не изменились");
+        }
+    }
+
+    protected long insert(String query, Object... params) {
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+            return ps;
+        }, keyHolder);
+
+        Long id = keyHolder.getKeyAs(Long.class);
+
+        if (id != null) {
+            return id;
+        } else {
+            throw new DatabaseException("Не удалось сохранить данные: ID не был сгенерирован");
+        }
+    }
+}

@@ -9,7 +9,8 @@ import java.util.Set;
 public interface FriendshipRepository {
     Friendship sendFriendshipRequest(Friendship friendship);
 
-    void deleteFriendship(Friendship friendship);
+    /** @return {@code true}, если строка дружбы была удалена */
+    boolean deleteFriendship(Friendship friendship);
 
     Optional<Friendship> findFriendship(Friendship friendship);
 

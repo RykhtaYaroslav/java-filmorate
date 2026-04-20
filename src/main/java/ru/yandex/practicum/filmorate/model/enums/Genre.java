@@ -2,6 +2,9 @@ package ru.yandex.practicum.filmorate.model.enums;
 
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 public enum Genre {
     COMEDY(1, "Комедия"),
@@ -13,6 +16,13 @@ public enum Genre {
 
     private final int id;
     private final String name;
+    private static final Map<Integer, Genre> ID_MAP = new HashMap<>();
+
+    static {
+        for (Genre genre : values()) {
+            ID_MAP.put(genre.id, genre);
+        }
+    }
 
     Genre(int id, String name) {
         this.id = id;
@@ -20,12 +30,11 @@ public enum Genre {
     }
 
     public static Genre fromId(int id) {
-        for (Genre genre : values()) {
-            if (genre.id == id) {
-                return genre;
-            }
+        Genre genre = ID_MAP.get(id);
+        if (genre == null) {
+            throw new IllegalArgumentException("Неизвестный ID жанра: " + id);
         }
-        throw new IllegalArgumentException("Неизвестный ID жанра: " + id);
+        return genre;
     }
 
     @Override

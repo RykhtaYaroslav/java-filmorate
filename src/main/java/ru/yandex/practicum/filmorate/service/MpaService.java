@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.repositories.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.dal.repositories.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.dto.mappers.MpaMapper;
 import ru.yandex.practicum.filmorate.dto.mpa.MpaRatingDto;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class MpaService {
-    private final MpaDbStorage storage;
+    private final MpaDbRepository storage;
 
     public List<MpaRatingDto> findAllMpa() {
         log.debug("Запрос на получение всех MPA рейтингов");
