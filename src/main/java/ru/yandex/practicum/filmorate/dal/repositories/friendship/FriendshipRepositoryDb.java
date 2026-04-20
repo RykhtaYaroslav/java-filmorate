@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.dal.repositories.friendship;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.user.FriendshipRowMapper;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
@@ -18,9 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-@RequiredArgsConstructor
-public class FriendshipRepositoryDb implements FriendshipRepository {
-    private final JdbcTemplate jdbc;
+public class FriendshipRepositoryDb extends BaseStorage<Friendship> implements FriendshipRepository {
     private final FriendshipRowMapper friendshipRowMapper;
 
     private static final String SEND_FRIENDSHIP_REQUEST = """
@@ -45,10 +44,15 @@ public class FriendshipRepositoryDb implements FriendshipRepository {
             WHERE user_id = ?
             """;
 
+    public FriendshipRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Friendship> mapper, FriendshipRowMapper friendshipRowMapper) {
+        super(namedJdbc, mapper);
+        this.friendshipRowMapper = friendshipRowMapper;
+    }
+
     @Override
     public Friendship sendFriendshipRequest(Friendship friendship) {
         try {
-            jdbc.update(SEND_FRIENDSHIP_REQUEST, friendship.getFromUserId(), friendship.getToUserId());
+            update(SEND_FRIENDSHIP_REQUEST, friendship.getFromUserId(), friendship.getToUserId());
 
         } catch (DuplicateKeyException e) {
             throw new DataConflictException(

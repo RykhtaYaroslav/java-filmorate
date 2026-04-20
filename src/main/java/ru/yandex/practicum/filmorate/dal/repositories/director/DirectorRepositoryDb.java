@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal.repositories.director;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,7 +18,6 @@ import java.util.Set;
 @Repository
 public class DirectorRepositoryDb extends BaseStorage<Director> implements DirectorRepository {
     private final DirectorExtractor extractor;
-    private final NamedParameterJdbcTemplate namedJdbc;
 
     private static final String FIND_ALL_QUERY = """
             SELECT *
@@ -71,12 +69,10 @@ public class DirectorRepositoryDb extends BaseStorage<Director> implements Direc
             WHERE film_id = ?
             """;
 
-    public DirectorRepositoryDb(JdbcTemplate jdbc, RowMapper<Director> mapper, DirectorExtractor extractor, NamedParameterJdbcTemplate namedJdbc) {
-        super(jdbc, mapper);
+    public DirectorRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Director> mapper, DirectorExtractor extractor) {
+        super(namedJdbc, mapper);
         this.extractor = extractor;
-        this.namedJdbc = namedJdbc;
     }
-
 
     @Override
     public Director create(Director director) {

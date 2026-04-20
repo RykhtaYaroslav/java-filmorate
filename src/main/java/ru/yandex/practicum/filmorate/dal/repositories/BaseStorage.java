@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.dal.repositories;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import ru.yandex.practicum.filmorate.exceptions.DatabaseException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -16,12 +17,14 @@ import java.util.Optional;
 import java.util.Set;
 
 public class BaseStorage<T> {
-    protected final JdbcTemplate jdbc;
+    protected final NamedParameterJdbcTemplate namedJdbc;
+    protected final JdbcOperations jdbc;
     protected final RowMapper<T> mapper;
 
-    public BaseStorage(JdbcTemplate jdbc, RowMapper<T> mapper) {
-        this.jdbc = jdbc;
+    public BaseStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<T> mapper) {
+        this.namedJdbc = namedJdbc;
         this.mapper = mapper;
+        this.jdbc = namedJdbc.getJdbcOperations();
     }
 
     protected Optional<T> findOne(String query, Object... params) {
@@ -45,8 +48,8 @@ public class BaseStorage<T> {
         return jdbc.query(query, mapper, params);
     }
 
-    protected void delete(String query, Object... params) {
-        jdbc.update(query, params);
+    protected boolean delete(String query, Object... params) {
+        return jdbc.update(query, params) > 0;
     }
 
     protected void update(String query, Object... params) {

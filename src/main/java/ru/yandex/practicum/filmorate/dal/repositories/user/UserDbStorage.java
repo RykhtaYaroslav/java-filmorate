@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.repositories.user;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.exceptions.DataConflictException;
@@ -61,8 +61,8 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             WHERE f.user_id = ?
             """;
 
-    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper, ResultSetExtractor<Set<User>> extractor) {
-        super(jdbc, mapper);
+    public UserDbStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<User> mapper, ResultSetExtractor<Set<User>> extractor) {
+        super(namedJdbc, mapper);
         this.extractor = extractor;
     }
 

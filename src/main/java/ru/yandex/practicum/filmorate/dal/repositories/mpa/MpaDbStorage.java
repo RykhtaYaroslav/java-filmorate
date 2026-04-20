@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.dal.repositories.mpa;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.model.enums.MpaRating;
@@ -25,8 +25,8 @@ public class MpaDbStorage extends BaseStorage<MpaRating> {
             WHERE id = ?
             """;
 
-    public MpaDbStorage(JdbcTemplate jdbc, RowMapper<MpaRating> mapper, ResultSetExtractor<List<MpaRating>> extractor) {
-        super(jdbc, mapper);
+    public MpaDbStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<MpaRating> mapper, ResultSetExtractor<List<MpaRating>> extractor) {
+        super(namedJdbc, mapper);
         this.extractor = extractor;
     }
 

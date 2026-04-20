@@ -1,12 +1,15 @@
 package ru.yandex.practicum.filmorate.dal.repositories.review;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.model.Review;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRepository {
@@ -35,8 +38,8 @@ public class ReviewRepositoryDb extends BaseStorage<Review> implements ReviewRep
 
     private static final String DECREASE_REACTION_QUERY = "UPDATE reviews SET useful = useful - ? WHERE id = ?";
 
-    public ReviewRepositoryDb(JdbcTemplate jdbc, RowMapper<Review> mapper) {
-        super(jdbc, mapper);
+    public ReviewRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Review> mapper) {
+        super(namedJdbc, mapper);
     }
 
     @Override

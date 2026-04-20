@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.repositories.film;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.film.FilmExtractor;
 import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
@@ -125,8 +125,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             ORDER BY COUNT(DISTINCT fl.user_id) DESC
             """;
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, FilmExtractor extractor) {
-        super(jdbc, mapper);
+    public FilmDbStorage(NamedParameterJdbcTemplate namedJdbc, RowMapper<Film> mapper, FilmExtractor extractor) {
+        super(namedJdbc, mapper);
         this.extractor = extractor;
     }
 

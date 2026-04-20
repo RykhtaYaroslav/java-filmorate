@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.dal.repositories.like;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.like.LikeExtractor;
+import ru.yandex.practicum.filmorate.dal.repositories.BaseStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Like;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,10 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
-@RequiredArgsConstructor
-public class LikeRepositoryDb implements LikeRepository {
-    private final JdbcTemplate jdbc;
-    private final NamedParameterJdbcTemplate namedJdbc;
+public class LikeRepositoryDb extends BaseStorage<Like> implements LikeRepository {
     private final LikeExtractor extractor;
 
     private static final String ADD_LIKE_QUERY = """
@@ -44,6 +42,11 @@ public class LikeRepositoryDb implements LikeRepository {
             FROM film_likes
             WHERE film_id IN (:filmIds)
             """;
+
+    public LikeRepositoryDb(NamedParameterJdbcTemplate namedJdbc, RowMapper<Like> mapper, LikeExtractor extractor) {
+        super(namedJdbc, mapper);
+        this.extractor = extractor;
+    }
 
     @Override
     public boolean addLike(Long filmId, Long userId) {
